@@ -1,9 +1,9 @@
 <?php
 
-namespace TwenyCode\LaravelCore\Services;
+namespace TwenyCode\LaravelBlueprint\Services;
 
-use TwenyCode\LaravelCore\Repositories\BaseRepositoryInterface;
-use TwenyCode\LaravelCore\Traits\ErrorHandlerTrait;
+use TwenyCode\LaravelBlueprint\Repositories\BaseRepositoryInterface;
+use TwenyCode\LaravelBlueprint\Traits\ErrorHandlerTrait;
 use Illuminate\Support\Facades\DB;
 use Closure;
 

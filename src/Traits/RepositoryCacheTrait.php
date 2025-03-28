@@ -1,6 +1,6 @@
 <?php
 
-namespace TwenyCode\LaravelCore\Traits;
+namespace TwenyCode\LaravelBlueprint\Traits;
 
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;

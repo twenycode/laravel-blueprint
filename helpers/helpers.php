@@ -7,9 +7,9 @@
  * They delegate to the appropriate helper classes.
  */
 
-use TwenyCode\LaravelCore\Helpers\DateHelper;
-use TwenyCode\LaravelCore\Helpers\NumberHelper;
-use TwenyCode\LaravelCore\Helpers\TextHelper;
+use TwenyCode\LaravelBlueprint\Helpers\DateHelper;
+use TwenyCode\LaravelBlueprint\Helpers\NumberHelper;
+use TwenyCode\LaravelBlueprint\Helpers\TextHelper;
 
 // Date helpers
 if (!function_exists('dateTimeConversion')) {

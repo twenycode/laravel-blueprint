@@ -1,6 +1,6 @@
 <?php
 
-namespace TwenyCode\LaravelCore\Repositories;
+namespace TwenyCode\LaravelBlueprint\Repositories;
 
 use Illuminate\Database\Eloquent\Model;
 

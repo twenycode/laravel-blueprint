@@ -1,6 +1,6 @@
 <?php
 
-namespace TwenyCode\LaravelCore\Observers;
+namespace TwenyCode\LaravelBlueprint\Observers;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;

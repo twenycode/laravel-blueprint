@@ -1,1 +1,1 @@
-# laravel-core
+# laravel-blueprint

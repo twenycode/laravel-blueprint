@@ -1,9 +1,9 @@
 <?php
 
-namespace TwenyCode\LaravelCore\Controllers;
+namespace TwenyCode\LaravelBlueprint\Controllers;
 
-use TwenyCode\LaravelCore\Traits\ErrorHandlerTrait;
-use TwenyCode\LaravelCore\Helpers\TextHelper;
+use TwenyCode\LaravelBlueprint\Traits\ErrorHandlerTrait;
+use TwenyCode\LaravelBlueprint\Helpers\TextHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 

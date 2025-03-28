@@ -1,6 +1,6 @@
 <?php
 
-namespace TwenyCode\LaravelCore\Http\Requests;
+namespace TwenyCode\LaravelBlueprint\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 

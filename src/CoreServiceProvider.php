@@ -1,10 +1,10 @@
 <?php
 
-namespace TwenyCode\LaravelCore;
+namespace TwenyCode\LaravelBlueprint;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Eloquent\Model;
-use TwenyCode\LaravelCore\Observers\ModelCacheObserver;
+use TwenyCode\LaravelBlueprint\Observers\ModelCacheObserver;
 
 /**
  * Core Service Provider

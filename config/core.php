@@ -6,7 +6,7 @@ return [
     | Core Package Configuration
     |--------------------------------------------------------------------------
     |
-    | Configuration settings for the TwenyCode LaravelCore package.
+    | Configuration settings for the TwenyCode LaravelBlueprint package.
     |
     */
 

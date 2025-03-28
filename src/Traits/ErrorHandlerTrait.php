@@ -1,6 +1,6 @@
 <?php
 
-namespace TwenyCode\LaravelCore\Traits;
+namespace TwenyCode\LaravelBlueprint\Traits;
 
 use Exception;
 use Illuminate\Support\Facades\Log;

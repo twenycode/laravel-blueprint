@@ -1,6 +1,6 @@
 <?php
 
-namespace TwenyCode\LaravelCore\Helpers;
+namespace TwenyCode\LaravelBlueprint\Helpers;
 
 use Illuminate\Support\Str;
 

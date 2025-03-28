@@ -1,9 +1,9 @@
 <?php
 
-namespace TwenyCode\LaravelCore\Models;
+namespace TwenyCode\LaravelBlueprint\Models;
 
-use TwenyCode\LaravelCore\Traits\HashingIds;
-use TwenyCode\LaravelCore\Helpers\DateHelper;
+use TwenyCode\LaravelBlueprint\Traits\HashingIds;
+use TwenyCode\LaravelBlueprint\Helpers\DateHelper;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\LogOptions;

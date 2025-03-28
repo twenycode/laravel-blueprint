@@ -1,9 +1,9 @@
 <?php
 
-namespace TwenyCode\LaravelCore\Repositories;
+namespace TwenyCode\LaravelBlueprint\Repositories;
 
-use TwenyCode\LaravelCore\Traits\ErrorHandlerTrait;
-use TwenyCode\LaravelCore\Traits\RepositoryCacheTrait;
+use TwenyCode\LaravelBlueprint\Traits\ErrorHandlerTrait;
+use TwenyCode\LaravelBlueprint\Traits\RepositoryCacheTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;

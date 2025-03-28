@@ -1,5 +1,5 @@
 {
-  "name": "twenycode/laravel-core",
+  "name": "twenycode/laravel-blueprint",
   "description": "Core components and utilities for Laravel applications",
   "type": "library",
   "license": "MIT",
@@ -26,7 +26,7 @@
   },
   "autoload": {
     "psr-4": {
-      "YourCompany\\LaravelCore\\": "src/"
+      "YourCompany\\LaravelBlueprint\\": "src/"
     },
     "files": [
       "helpers/helpers.php"
@@ -34,13 +34,13 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "YourCompany\\LaravelCore\\Tests\\": "tests/"
+      "YourCompany\\LaravelBlueprint\\Tests\\": "tests/"
     }
   },
   "extra": {
     "laravel": {
       "providers": [
-        "YourCompany\\LaravelCore\\CoreServiceProvider"
+        "YourCompany\\LaravelBlueprint\\CoreServiceProvider"
       ]
     }
   }

@@ -1,6 +1,6 @@
 <?php
 
-namespace TwenyCode\LaravelCore\Services;
+namespace TwenyCode\LaravelBlueprint\Services;
 
 /**
  * Base Service Interface
