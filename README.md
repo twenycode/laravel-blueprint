@@ -41,12 +41,12 @@ composer require twenycode/laravel-blueprint
 Publish the configuration files:
 
 ```bash
-php artisan vendor:publish --provider="TwenyCode\LaravelBlueprint\CoreServiceProvider" --tag="config"
+php artisan vendor:publish --provider="TwenyCode\LaravelBlueprint\CoreServiceProvider" --tag="tcb-config"
 ```
 
 This will publish the following configuration files:
-- `config/core.php` - Main configuration settings
-- `config/hashids.php` - HashIds configuration
+- `config/tcb_core.php` - Main configuration settings
+- `config/tcb_hashids.php` - HashIds configuration
 
 ## Usage
 
@@ -263,7 +263,7 @@ $trimmed = trimWords('This is a long text that needs trimming', 5);  // "This is
 
 ### Cache Configuration
 
-Configure caching behavior in `config/core.php`:
+Configure caching behavior in `config/tcb_core.php`:
 
 ```php
 // Enable/disable model cache observers
@@ -271,7 +271,7 @@ Configure caching behavior in `config/core.php`:
 
 // Common cache keys
 'cache_keys' => [
-    'all', 'active', 'inactive', 'with_relations', 'trashed'
+    'all', 'active', 'inactive', 'with_relations', 'trashed', 'paginated'
 ],
 
 // Default cache duration in minutes
@@ -280,7 +280,7 @@ Configure caching behavior in `config/core.php`:
 
 ### Hash IDs Configuration
 
-Configure ID hashing in `config/hashids.php`:
+Configure ID hashing in `config/tcb_hashids.php`:
 
 ```php
 'connections' => [
@@ -290,6 +290,80 @@ Configure ID hashing in `config/hashids.php`:
         'alphabet' => 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890',
     ],
 ],
+```
+
+### Model Configuration
+
+Configure model behavior in `config/tcb_core.php`:
+
+```php
+// Observable models (automatically clear cache on changes)
+'observable_models' => [
+    \App\Models\User::class,
+    \App\Models\Product::class,
+    // Add your model classes here
+],
+
+// User-specific cache models (for per-user data)
+'user_cache_models' => [
+    'Contract', 'Task', 'Project'
+],
+```
+
+### Authorization Configuration
+
+Configure authorization settings in `config/tcb_core.php`:
+
+```php
+// Whether to check authorization by default in controllers
+'check_authorization' => true,
+
+// Super admin role name
+'super_admin_role' => 'superAdmin',
+```
+
+## Extending The Package
+
+### Custom Repositories
+
+Add specialized queries and methods to your repository classes:
+
+```php
+public function findActiveByEmail($email)
+{
+    return $this->handleError(function () use ($email) {
+        return $this->model
+            ->where('email', $email)
+            ->where('isActive', true)
+            ->first();
+    }, 'find active user by email');
+}
+```
+
+### Custom Services
+
+Add complex business logic in your service classes:
+
+```php
+public function registerUser(array $data)
+{
+    return $this->transaction(function () use ($data) {
+        // Create user
+        $user = $this->repository->create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => bcrypt($data['password']),
+        ]);
+        
+        // Assign role
+        $user->assignRole('user');
+        
+        // Send welcome email
+        Mail::to($user->email)->send(new WelcomeEmail($user));
+        
+        return $user;
+    });
+}
 ```
 
 ## Contributing
