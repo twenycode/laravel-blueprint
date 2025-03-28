@@ -1,0 +1,47 @@
+{
+  "name": "twenycode/laravel-core",
+  "description": "Core components and utilities for Laravel applications",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Tweny Code",
+      "email": "twenycode@tweny.co.tz"
+    }
+  ],
+  "minimum-stability": "stable",
+  "require": {
+    "php": "^8.0",
+    "illuminate/support": "^8.0|^9.0|^10.0",
+    "illuminate/database": "^8.0|^9.0|^10.0",
+    "illuminate/http": "^8.0|^9.0|^10.0",
+    "illuminate/contracts": "^8.0|^9.0|^10.0",
+    "illuminate/routing": "^8.0|^9.0|^10.0",
+    "illuminate/foundation": "^8.0|^9.0|^10.0",
+    "spatie/laravel-activitylog": "^4.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9.5",
+    "mockery/mockery": "^1.4"
+  },
+  "autoload": {
+    "psr-4": {
+      "YourCompany\\LaravelCore\\": "src/"
+    },
+    "files": [
+      "helpers/helpers.php"
+    ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "YourCompany\\LaravelCore\\Tests\\": "tests/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "YourCompany\\LaravelCore\\CoreServiceProvider"
+      ]
+    }
+  }
+}

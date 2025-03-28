@@ -1,0 +1,78 @@
+<?php
+
+namespace TwenyCode\LaravelCore;
+
+use Illuminate\Support\ServiceProvider;
+use Illuminate\Database\Eloquent\Model;
+use TwenyCode\LaravelCore\Observers\ModelCacheObserver;
+
+/**
+ * Core Service Provider
+ * Registers all components of the core package
+ */
+class CoreServiceProvider extends ServiceProvider
+{
+    /**
+     * Register services.
+     *
+     * @return void
+     */
+    public function register()
+    {
+        // Merge config
+        $this->mergeConfigFrom(
+            __DIR__ . '/../config/core.php', 'core'
+        );
+
+        // Register helpers
+        $this->registerHelpers();
+    }
+
+    /**
+     * Bootstrap services.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        // Publish config
+        $this->publishes([
+            __DIR__ . '/../config/core.php' => config_path('core.php'),
+        ], 'config');
+
+        // Register global model observers if enabled
+        if (config('core.enable_cache_observers', true)) {
+            $this->registerModelObservers();
+        }
+    }
+
+    /**
+     * Register helper functions
+     *
+     * @return void
+     */
+    protected function registerHelpers()
+    {
+        // Load the global helper file if it exists
+        if (file_exists($helpers = __DIR__ . '/../helpers/helpers.php')) {
+            require $helpers;
+        }
+    }
+
+    /**
+     * Register model observers
+     *
+     * @return void
+     */
+    protected function registerModelObservers()
+    {
+        // Get models to observe from config
+        $models = config('core.observable_models', []);
+
+        foreach ($models as $modelClass) {
+            if (class_exists($modelClass)) {
+                forward_static_call([$modelClass, 'observe'], ModelCacheObserver::class);
+            }
+        }
+    }
+}

@@ -1,6 +1,6 @@
 <?php
 
-namespace TwenyCode\LaravelCore\Traits\Repository;
+namespace TwenyCode\LaravelCore\Traits;
 
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -14,9 +14,7 @@ trait RepositoryCacheTrait
     protected int $cacheDuration = 1440; // 24 hours (1 day)
 
     /** @var array Models that use user-specific caching */
-    protected array $includeInUserCache = [
-        'Contract', 'Ticket', 'Task', 'Project', 'LeaveRequest'
-    ];
+    protected array $includeInUserCache = [ ];
 
     /**
      * Set the cache duration
@@ -61,7 +59,7 @@ trait RepositoryCacheTrait
 
         // Add user-specific prefix for certain models if user is logged in and not an admin
         if ($this->shouldUseUserSpecificCache()) {
-            return auth()->user()->username . '_' . $key;
+            return auth()->user()->id . '_' . $key;
         }
 
         return $key;
@@ -96,7 +94,7 @@ trait RepositoryCacheTrait
         foreach ($keys as $key) {
             // Clear user-specific cache if applicable
             if ($this->shouldUseUserSpecificCache()) {
-                Cache::forget(auth()->user()->username . '_' . $this->cacheKeyPrefix . '_' . $key);
+                Cache::forget(auth()->user()->id . '_' . $this->cacheKeyPrefix . '_' . $key);
             }
 
             // Always clear global cache
