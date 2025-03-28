@@ -2,26 +2,27 @@
 
 namespace TwenyCode\LaravelBlueprint\Traits;
 
-use Illuminate\Support\Facades\Config;
 use Hashids\Hashids;
+use Illuminate\Support\Facades\Config;
 
 /**
- * Trait for hashing IDs in models
+ * Trait for ID hashing and obfuscation
  *
- * This trait provides methods to encode and decode model IDs for public-facing URLs
+ * Provides methods to encode and decode model IDs for public-facing URLs
+ * to prevent sequential ID guessing and enhance security.
  */
 trait HashingIds
 {
     /**
-     * Get a Hashids instance
+     * Get Hashids instance with app-specific salt
      *
-     * @return \Hashids\Hashids
+     * @return Hashids
      */
     protected function getHasher(): Hashids
     {
-        $salt = Config::get('app.key', 'your-app-key');
-        $minLength = Config::get('core.hashids.min_length', 10);
-        $alphabet = Config::get('core.hashids.alphabet', 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890');
+        $salt = Config::get('hashids.connections.main.salt', Config::get('app.key', 'laravel-blueprint'));
+        $minLength = Config::get('hashids.connections.main.length', 6);
+        $alphabet = Config::get('hashids.connections.main.alphabet', 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890');
 
         return new Hashids($salt, $minLength, $alphabet);
     }
@@ -40,53 +41,27 @@ trait HashingIds
     /**
      * Decode an encoded ID
      *
-     * @param string $encodedId The encoded ID to decode
+     * @param string $value The encoded ID
      * @return int|null The decoded ID or null if invalid
      */
-    public function decode($encodedId)
+    public function decode($value)
     {
-        $decoded = $this->getHasher()->decode($encodedId);
+        if (is_numeric($value)) {
+            return (int) $value;
+        }
 
-        // Hashids returns an array, we want the first value or null
+        $decoded = $this->getHasher()->decode($value);
+
         return !empty($decoded) ? $decoded[0] : null;
     }
 
     /**
-     * Get the encoded ID (to be used in routes, etc.)
+     * Get the encoded ID (accessor for encoded_id attribute)
      *
      * @return string
      */
-    public function getHashedIdAttribute(): string
+    public function getEncodedIdAttribute(): string
     {
         return $this->encode($this->id);
-    }
-
-    /**
-     * Get the route key for the model
-     *
-     * @return string
-     */
-    public function getRouteKeyName(): string
-    {
-        return 'hashed_id';
-    }
-
-    /**
-     * Retrieve the model for a bound value
-     *
-     * @param mixed $value The value to find the model by
-     * @param string|null $field The field to search in
-     * @return \Illuminate\Database\Eloquent\Model|null
-     */
-    public function resolveRouteBinding($value, $field = null)
-    {
-        // If field is specified and it's not the hashed_id, use parent implementation
-        if ($field && $field !== 'hashed_id') {
-            return parent::resolveRouteBinding($value, $field);
-        }
-
-        // Otherwise, decrypt the ID and find by primary key
-        $id = $this->decode($value);
-        return $id ? $this->findOrFail($id) : null;
     }
 }

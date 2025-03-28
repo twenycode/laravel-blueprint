@@ -19,9 +19,13 @@ class CoreServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        // Merge config
+        // Merge configs
         $this->mergeConfigFrom(
             __DIR__ . '/../config/core.php', 'core'
+        );
+
+        $this->mergeConfigFrom(
+            __DIR__ . '/../config/hashids.php', 'hashids'
         );
 
         // Register helpers
@@ -35,9 +39,10 @@ class CoreServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        // Publish config
+        // Publish configs
         $this->publishes([
             __DIR__ . '/../config/core.php' => config_path('core.php'),
+            __DIR__ . '/../config/hashids.php' => config_path('hashids.php'),
         ], 'config');
 
         // Register global model observers if enabled
