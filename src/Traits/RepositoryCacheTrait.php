@@ -109,7 +109,7 @@ trait RepositoryCacheTrait
      */
     public function clearCacheKey(): void
     {
-        $this->forgetCache(config('cache.keys', [
+        $this->forgetCache(config('tcb_core.cache_keys', [
             'all', 'active', 'inactive', 'trashed', 'with_relations'
         ]));
 
