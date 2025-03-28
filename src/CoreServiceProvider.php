@@ -19,13 +19,13 @@ class CoreServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        // Merge configs
+        // Merge configs with prefixed keys
         $this->mergeConfigFrom(
-            __DIR__ . '/../config/tcb_core.php', 'core'
+            __DIR__ . '/../config/tcb_core.php', 'tcb_core'
         );
 
         $this->mergeConfigFrom(
-            __DIR__ . '/../config/tcb_hashids.php', 'hashids'
+            __DIR__ . '/../config/tcb_hashids.php', 'tcb_hashids'
         );
 
         // Register helpers
@@ -43,10 +43,10 @@ class CoreServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__ . '/../config/tcb_core.php' => config_path('tcb_core.php'),
             __DIR__ . '/../config/tcb_hashids.php' => config_path('tcb_hashids.php'),
-        ], 'config');
+        ], 'tcb-config');
 
-        // Register global model observers if enabled
-        if (config('core.enable_cache_observers', true)) {
+        // Register model observers - note the updated config key
+        if (config('tcb_core.enable_cache_observers', true)) {
             $this->registerModelObservers();
         }
     }
@@ -71,8 +71,8 @@ class CoreServiceProvider extends ServiceProvider
      */
     protected function registerModelObservers()
     {
-        // Get models to observe from config
-        $models = config('core.observable_models', []);
+        // Get models to observe from config - note the updated config key
+        $models = config('tcb_core.observable_models', []);
 
         foreach ($models as $modelClass) {
             if (class_exists($modelClass)) {

@@ -79,7 +79,7 @@ class ModelCacheObserver
         $cacheKeyPrefix = Str::snake($modelName);
 
         // Get common cache keys from config or use defaults
-        $keys = config('cache.keys', [
+        $keys = config('tcb_core.cache_keys', [
             'all', 'active', 'inactive', 'trashed', 'with_relations'
         ]);
 
