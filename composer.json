@@ -36,7 +36,7 @@
   "extra": {
     "laravel": {
       "providers": [
-        "TwenyLaravelBlueprintServiceProvider"
+        "TwenyCode\\LaravelBlueprint\\TwenyLaravelBlueprintServiceProvider"
       ]
     }
   }
