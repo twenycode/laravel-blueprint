@@ -45,8 +45,8 @@ php artisan vendor:publish --provider="TwenyCode\LaravelBlueprint\CoreServicePro
 ```
 
 This will publish the following configuration files:
-- `config/tcb_core.php` - Main configuration settings
-- `config/tcb_hashids.php` - HashIds configuration
+- `config/tweny-blueprint.php` - Main configuration settings
+- `config/tweny-hashids.php` - HashIds configuration
 
 ## Usage
 
@@ -263,7 +263,7 @@ $trimmed = trimWords('This is a long text that needs trimming', 5);  // "This is
 
 ### Cache Configuration
 
-Configure caching behavior in `config/tcb_core.php`:
+Configure caching behavior in `config/tweny-blueprint.php`:
 
 ```php
 // Enable/disable model cache observers
@@ -280,7 +280,7 @@ Configure caching behavior in `config/tcb_core.php`:
 
 ### Hash IDs Configuration
 
-Configure ID hashing in `config/tcb_hashids.php`:
+Configure ID hashing in `config/tweny-hashids.php`:
 
 ```php
 'connections' => [
@@ -294,7 +294,7 @@ Configure ID hashing in `config/tcb_hashids.php`:
 
 ### Model Configuration
 
-Configure model behavior in `config/tcb_core.php`:
+Configure model behavior in `config/tweny-blueprint.php`:
 
 ```php
 // Observable models (automatically clear cache on changes)
@@ -312,7 +312,7 @@ Configure model behavior in `config/tcb_core.php`:
 
 ### Authorization Configuration
 
-Configure authorization settings in `config/tcb_core.php`:
+Configure authorization settings in `config/tweny-blueprint.php`:
 
 ```php
 // Whether to check authorization by default in controllers
