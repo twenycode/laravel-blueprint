@@ -21,11 +21,11 @@ class CoreServiceProvider extends ServiceProvider
     {
         // Merge configs
         $this->mergeConfigFrom(
-            __DIR__ . '/../config/core.php', 'core'
+            __DIR__ . '/../config/tcb_core.php', 'core'
         );
 
         $this->mergeConfigFrom(
-            __DIR__ . '/../config/hashids.php', 'hashids'
+            __DIR__ . '/../config/tcb_hashids.php', 'hashids'
         );
 
         // Register helpers
@@ -41,8 +41,8 @@ class CoreServiceProvider extends ServiceProvider
     {
         // Publish configs
         $this->publishes([
-            __DIR__ . '/../config/core.php' => config_path('core.php'),
-            __DIR__ . '/../config/hashids.php' => config_path('hashids.php'),
+            __DIR__ . '/../config/tcb_core.php' => config_path('tcb_core.php'),
+            __DIR__ . '/../config/tcb_hashids.php' => config_path('tcb_hashids.php'),
         ], 'config');
 
         // Register global model observers if enabled
