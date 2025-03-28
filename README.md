@@ -1,39 +1,58 @@
-# Laravel Core Package
+# Laravel Blueprint
 
-A comprehensive set of core components for Laravel applications that provides a standardized architecture and common utilities to accelerate development.
+A comprehensive architecture and utilities package for Laravel applications that provides a standardized structure, core components, and common patterns to accelerate development.
+
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/twenycode/laravel-blueprint.svg?style=flat-square)](https://packagist.org/packages/twenycode/laravel-blueprint)
+[![Total Downloads](https://img.shields.io/packagist/dt/twenycode/laravel-blueprint.svg?style=flat-square)](https://packagist.org/packages/twenycode/laravel-blueprint)
+[![MIT Licensed](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
+
+## Introduction
+
+Laravel Blueprint provides a solid foundation for building Laravel applications with a clean architecture, standardized patterns, and reusable components. It implements the repository pattern, service layer, and includes numerous utilities and base classes to streamline your development process.
 
 ## Features
 
-- **Repository Pattern Implementation** - Clean data access layer implementation with caching
-- **Service Layer** - Business logic abstraction with transaction management
-- **Base Controllers** - Ready-to-use resource controllers with common CRUD operations
-- **Helper Classes** - Well-structured helper methods for dates, text, and numbers
-- **Trait-based Functionality** - Reusable traits for error handling, ID hashing, and more
-- **Cache Management** - Automatic cache clearing with model observers
-- **Base Models** - Feature-rich base model with common attributes, accessors, and relationships
-- **Form Requests** - Permission-based form request validation
+- **Repository Pattern** - Standardized data access layer with built-in caching support
+- **Service Layer** - Business logic abstraction with database transaction management
+- **Resource Controllers** - Base controllers with CRUD operations, error handling, and flash messaging
+- **Model Enhancements** - Feature-rich base model with common attributes and methods
+- **Caching System** - Automatic cache management with model observers
+- **Helper Functions** - Extensive utility functions for dates, text, and numbers
+- **Error Handling** - Standardized error handling traits across application components
+- **ID Obfuscation** - HashIds implementation for obscuring database IDs in URLs
+- **Form Request Validation** - Permission-based request validation
+- **Soft Delete Support** - Ready-to-use methods for handling soft deletes
+
+## Requirements
+
+- PHP 8.0+
+- Laravel 8.0+
 
 ## Installation
 
 You can install this package via Composer:
 
 ```bash
-composer require yourcompany/laravel-core
+composer require twenycode/laravel-blueprint
 ```
 
 ## Configuration
 
-Publish the configuration file:
+Publish the configuration files:
 
 ```bash
-php artisan vendor:publish --provider="YourCompany\LaravelCore\CoreServiceProvider" --tag="config"
+php artisan vendor:publish --provider="TwenyCode\LaravelBlueprint\CoreServiceProvider" --tag="config"
 ```
+
+This will publish the following configuration files:
+- `config/core.php` - Main configuration settings
+- `config/hashids.php` - HashIds configuration
 
 ## Usage
 
 ### Repositories
 
-Extend the base repository to create your own repositories:
+Extend the base repository to create repository classes for your models:
 
 ```php
 <?php
@@ -41,7 +60,7 @@ Extend the base repository to create your own repositories:
 namespace App\Repositories;
 
 use App\Models\User;
-use YourCompany\LaravelCore\Repositories\BaseRepository;
+use TwenyCode\LaravelBlueprint\Repositories\BaseRepository;
 
 class UserRepository extends BaseRepository
 {
@@ -49,11 +68,17 @@ class UserRepository extends BaseRepository
     {
         parent::__construct($model);
         
-        // Define default relationships to load
+        // Define default relationships to eager load
         $this->relationships = ['roles', 'permissions'];
     }
     
-    // Add custom repository methods here
+    // Add custom repository methods
+    public function findByEmail(string $email)
+    {
+        return $this->handleError(function () use ($email) {
+            return $this->model->where('email', $email)->first();
+        }, 'find user by email');
+    }
 }
 ```
 
@@ -67,7 +92,8 @@ Create service classes by extending the base service:
 namespace App\Services;
 
 use App\Repositories\UserRepository;
-use YourCompany\LaravelCore\Services\BaseService;
+use TwenyCode\LaravelBlueprint\Services\BaseService;
+use Illuminate\Support\Facades\Hash;
 
 class UserService extends BaseService
 {
@@ -76,7 +102,15 @@ class UserService extends BaseService
         parent::__construct($repository);
     }
     
-    // Add custom service methods here
+    // Add custom business logic
+    public function registerUser(array $data)
+    {
+        return $this->transaction(function () use ($data) {
+            // Process data and create user
+            $data['password'] = Hash::make($data['password']);
+            return $this->repository->create($data);
+        });
+    }
 }
 ```
 
@@ -92,7 +126,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UserStoreRequest;
 use App\Http\Requests\UserUpdateRequest;
 use App\Services\UserService;
-use YourCompany\LaravelCore\Controllers\BaseResourceController;
+use TwenyCode\LaravelBlueprint\Controllers\BaseResourceController;
 
 class UserController extends BaseResourceController
 {
@@ -127,7 +161,7 @@ Create models by extending the base model:
 
 namespace App\Models;
 
-use YourCompany\LaravelCore\Models\BaseModel;
+use TwenyCode\LaravelBlueprint\Models\BaseModel;
 
 class User extends BaseModel
 {
@@ -139,75 +173,128 @@ class User extends BaseModel
         'password', 'remember_token',
     ];
     
-    // Add custom model methods, relationships, etc.
+    // Add custom relationships, methods, etc.
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
+    }
 }
 ```
 
-### Helper Methods
+### Form Requests
 
-The package provides a wide range of helper methods that can be used in your application:
-
-```php
-// Date helpers
-$formattedDate = dateTimeConversion('2023-01-01', 'd M Y');
-$daysBetween = numberOfDays('2023-01-01', '2023-01-15');
-$timeAgo = formatTimeAgo('2023-01-01 12:00:00');
-
-// Number helpers
-$fileSize = formatFileSize(1024 * 1024); // "1.00 MB"
-$money = formatMoney(1234.56); // "$1,234.56"
-
-// Text helpers
-$pluralized = pluralize('category'); // "categories"
-$snakeCase = snake('HelloWorld'); // "hello_world"
-$trimmed = trimWords('This is a long text that needs trimming', 5); // "This is a long text..."
-```
-
-## Extending
-
-You can extend and customize any part of this package to meet your specific requirements.
-
-### Custom Repositories
-
-You can implement your own repository methods for specialized queries:
+Create form requests by extending the base form request:
 
 ```php
-public function findActiveByEmail($email)
+<?php
+
+namespace App\Http\Requests;
+
+use TwenyCode\LaravelBlueprint\Http\Requests\BaseFormRequest;
+
+class UserStoreRequest extends BaseFormRequest
 {
-    return $this->handleError(function () use ($email) {
-        return $this->model
-            ->where('email', $email)
-            ->where('is_active', true)
-            ->first();
-    }, 'find active user by email');
+    public function authorize()
+    {
+        return $this->checkPermission('create-user');
+    }
+    
+    public function rules()
+    {
+        return [
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:8|confirmed',
+        ];
+    }
 }
 ```
 
-### Custom Services
+## Helper Functions
 
-Implement complex business logic in your service classes:
+The package provides a wide range of helper functions:
+
+### Date Helpers
 
 ```php
-public function registerUser(array $data)
-{
-    return $this->transaction(function () use ($data) {
-        // Create user
-        $user = $this->repository->create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => bcrypt($data['password']),
-        ]);
-        
-        // Assign role
-        $user->assignRole('user');
-        
-        // Send welcome email
-        Mail::to($user->email)->send(new WelcomeEmail($user));
-        
-        return $user;
-    });
-}
+// Convert date formats
+$formattedDate = dateTimeConversion('2023-01-01', 'd M Y');  // "01 Jan 2023"
+
+// Calculate days between dates
+$daysBetween = numberOfDays('2023-01-01', '2023-01-15');  // 14
+
+// Format time ago
+$timeAgo = formatTimeAgo('2023-01-01 12:00:00');  // "3 months ago"
+
+// Format date ranges
+$range = formatDateDuration('2023-01-15', '2023-02-20');  // "15 Jan - 20 Feb, 2023"
 ```
+
+### Number Helpers
+
+```php
+// Format file sizes
+$fileSize = formatFileSize(1024 * 1024);  // "1.00 MB"
+
+// Format currency
+$amount = formatCurrencyDecimal(1234.56);  // "1,234.56"
+$money = formatMoney(1234.56);  // "$ 1,234.56"
+
+// Calculate percentages
+$value = calculatePercentNumber(15, 200);  // 30
+```
+
+### Text Helpers
+
+```php
+// Manipulate strings
+$snakeCase = snake('HelloWorld');  // "hello_world"
+$headlined = headline('user_profile_settings');  // "User Profile Settings"
+
+// Work with plurals
+$plural = pluralize('category');  // "categories"
+$variableName = pluralizeVariableName('userProfile');  // "userProfiles"
+
+// Trim text
+$trimmed = trimWords('This is a long text that needs trimming', 5);  // "This is a long text..."
+```
+
+## Customization
+
+### Cache Configuration
+
+Configure caching behavior in `config/core.php`:
+
+```php
+// Enable/disable model cache observers
+'enable_cache_observers' => true,
+
+// Common cache keys
+'cache_keys' => [
+    'all', 'active', 'inactive', 'with_relations', 'trashed'
+],
+
+// Default cache duration in minutes
+'cache_duration' => 1440, // 24 hours
+```
+
+### Hash IDs Configuration
+
+Configure ID hashing in `config/hashids.php`:
+
+```php
+'connections' => [
+    'main' => [
+        'salt' => env('HASHIDS_SALT', config('app.key')),
+        'length' => 6,
+        'alphabet' => 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890',
+    ],
+],
+```
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
