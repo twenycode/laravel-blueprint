@@ -300,3 +300,23 @@ if (!function_exists('pluralizeVariableName')) {
         return TextHelper::pluralizeVariableName($variableName);
     }
 }
+
+// Add this to your existing helpers.php file
+if (!function_exists('toast')) {
+    /**
+     * Flash a toast message.
+     *
+     * @param string $message The toast message
+     * @param string $type The toast type (success, error, warning, info)
+     * @return mixed
+     */
+    function toast($message, $type = 'info')
+    {
+        if (class_exists('RealRashid\SweetAlert\Facades\Alert')) {
+            return app('RealRashid\SweetAlert\Facades\Alert')->toast($message, $type);
+        }
+
+        // Fallback to session flash if SweetAlert isn't available
+        return session()->flash($type, $message);
+    }
+}
