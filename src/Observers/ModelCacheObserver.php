@@ -79,9 +79,8 @@ class ModelCacheObserver
         $cacheKeyPrefix = Str::snake($modelName);
 
         // Get common cache keys from config or use defaults
-        $keys = config('tweny-blueprint.cache_keys', [
-            'all', 'active', 'inactive', 'with_relationship', 'trashed', 'paginated'
-        ]);
+        $keys = config('tweny-blueprint.cache_keys',['all','with_relationship', 'active_with_relationship', 'inactive_with_relationship',
+            'trashed', 'paginated','active','pluck_active']);
 
         foreach ($keys as $key) {
             // Clear global cache

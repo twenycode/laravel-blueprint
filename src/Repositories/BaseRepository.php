@@ -79,7 +79,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
     public function getAll()
     {
         return $this->handleError(function () {
-            $cacheKey = $this->generateCacheKey('get_all');
+            $cacheKey = $this->generateCacheKey('all');
             return $this->remember($cacheKey, function () {
                 return $this->model->get();
             });
@@ -94,7 +94,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
     public function getAllWithRelationships()
     {
         return $this->handleError(function () {
-            $cacheKey = $this->generateCacheKey('get_with_relationship');
+            $cacheKey = $this->generateCacheKey('with_relationship');
             return $this->remember($cacheKey, function () {
                 return $this->model
                     ->with($this->relationships)
@@ -111,7 +111,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
     public function getActiveDataWithRelations()
     {
         return $this->handleError(function () {
-            $cacheKey = $this->generateCacheKey('get_active_data_with_relation');
+            $cacheKey = $this->generateCacheKey('active_with_relationship');
             return $this->remember($cacheKey, function () {
                 return $this->model
                     ->where('isActive', 1)
@@ -129,7 +129,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
     public function getInactiveDataWithRelations()
     {
         return $this->handleError(function () {
-            $cacheKey = $this->generateCacheKey('get_inactive_data_with_relation');
+            $cacheKey = $this->generateCacheKey('inactive_with_relationship');
             return $this->remember($cacheKey, function () {
                 return $this->model
                     ->where('isActive', 0)
@@ -218,7 +218,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
     public function trashed()
     {
         return $this->handleError(function () {
-            $cacheKey = $this->generateCacheKey('soft_deleted');
+            $cacheKey = $this->generateCacheKey('trashed');
             return $this->remember($cacheKey, function () {
                 return $this->model->onlyTrashed()->get();
             });
@@ -310,7 +310,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
     public function getActiveData()
     {
         return $this->handleError(function () {
-            $cacheKey = $this->generateCacheKey('get_active_data');
+            $cacheKey = $this->generateCacheKey('active');
             return $this->remember($cacheKey, function () {
                 return $this->model
                     ->where('isActive', 1)
@@ -327,7 +327,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
     public function pluckActiveData()
     {
         return $this->handleError(function () {
-            $cacheKey = $this->generateCacheKey('pluck_active_data');
+            $cacheKey = $this->generateCacheKey('pluck_active');
             return $this->remember($cacheKey, function () {
                 return $this->model
                     ->where('isActive', 1)
