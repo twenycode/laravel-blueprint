@@ -21,7 +21,7 @@ return [
 
     // Common cache keys used for repositories
     'cache_keys' => [
-        'all', 'active', 'inactive', 'with_relations', 'trashed', 'paginated'
+        'all', 'active', 'inactive', 'with_relationships', 'trashed', 'paginated'
     ],
 
     // Default cache duration in minutes
