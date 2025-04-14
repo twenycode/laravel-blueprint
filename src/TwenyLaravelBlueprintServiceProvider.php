@@ -47,7 +47,7 @@ class TwenyLaravelBlueprintServiceProvider extends ServiceProvider
 
         // Publish SweetAlert assets when the package is published
         $this->publishes([
-            __DIR__.'/../vendor/realrashid/sweet-alert/public/sweetalert' => public_path('vendor/sweetalert'),
+            __DIR__.'/../vendor/realrashid/sweet-alert/resources/js' => public_path('vendor/sweetalert'),
         ], 'laravel-blueprint-sweetalert-assets');
 
         // Register model observers - note the updated config key
