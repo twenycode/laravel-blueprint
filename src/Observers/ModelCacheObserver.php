@@ -80,7 +80,7 @@ class ModelCacheObserver
 
         // Get common cache keys from config or use defaults
         $keys = config('tweny-blueprint.cache_keys', [
-            'all', 'active', 'inactive', 'trashed', 'with_relations'
+            'all', 'active', 'inactive', 'with_relationships', 'trashed', 'paginated'
         ]);
 
         foreach ($keys as $key) {
