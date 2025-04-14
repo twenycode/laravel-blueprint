@@ -64,7 +64,6 @@ abstract class BaseResourceController extends Controller
         if (function_exists('toast')) {
             return toast($message, $type);
         }
-
         return session()->flash($type, $message);
     }
 

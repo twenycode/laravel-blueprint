@@ -28,9 +28,6 @@ class TwenyLaravelBlueprintServiceProvider extends ServiceProvider
             __DIR__ . '/../config/tweny-hashids.php', 'tweny-hashids'
         );
 
-        // Register SweetAlert Service Provider
-        $this->app->register(\RealRashid\SweetAlert\SweetAlertServiceProvider::class);
-
         // Register helpers
         $this->registerHelpers();
     }
@@ -48,9 +45,10 @@ class TwenyLaravelBlueprintServiceProvider extends ServiceProvider
             __DIR__ . '/../config/tweny-hashids.php' => config_path('tweny-hashids.php'),
         ], 'tcb-config');
 
-        // Register middleware for SweetAlert
-        $this->app->make(\Illuminate\Contracts\Http\Kernel::class)
-            ->prependMiddleware(\RealRashid\SweetAlert\ToSweetAlert::class);
+        // Publish SweetAlert assets when the package is published
+        $this->publishes([
+            __DIR__.'/../vendor/realrashid/sweet-alert/public/sweetalert' => public_path('vendor/sweetalert'),
+        ], 'laravel-blueprint-sweetalert-assets');
 
         // Register model observers - note the updated config key
         if (config('tweny-blueprint.enable_cache_observers', true)) {
