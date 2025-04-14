@@ -201,7 +201,7 @@ abstract class BaseResourceController extends Controller
         return $this->handleError(function () use ($request) {
             $this->layer->create($request->validated());
             return $this->success("New {$this->controllerName} added");
-        }, "create new", $request->input());
+        }, "create new", $request);
     }
 
     /**
@@ -255,7 +255,7 @@ abstract class BaseResourceController extends Controller
         return $this->handleError(function () use ($id, $request) {
             $this->layer->update($id, $request->validated());
             return $this->successRoute($this->baseRouteName . '.index', "{$this->controllerName} updated");
-        }, "update", $request->input());
+        }, "update", $request);
     }
 
     /**
