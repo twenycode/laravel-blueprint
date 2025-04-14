@@ -28,6 +28,11 @@ class TwenyLaravelBlueprintServiceProvider extends ServiceProvider
             __DIR__ . '/../config/tweny-hashids.php', 'tweny-hashids'
         );
 
+        // Register SweetAlert if it isn't already registered
+        if (!$this->app->providerIsLoaded('RealRashid\SweetAlert\SweetAlertServiceProvider')) {
+            $this->app->register('RealRashid\SweetAlert\SweetAlertServiceProvider');
+        }
+
         // Register helpers
         $this->registerHelpers();
     }
