@@ -6,6 +6,7 @@ use TwenyCode\LaravelBlueprint\Traits\ErrorHandlerTrait;
 use TwenyCode\LaravelBlueprint\Helpers\TextHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use App\Http\Controllers\Controller;
 
 /**
  * Base Resource Controller with standard CRUD operations
