@@ -22,6 +22,7 @@ Laravel Blueprint provides a solid foundation for building Laravel applications 
 - **ID Obfuscation** - HashIds implementation for obscuring database IDs in URLs
 - **Form Request Validation** - Permission-based request validation
 - **Soft Delete Support** - Ready-to-use methods for handling soft deletes
+- **Flash Messaging** - Integrated SweetAlert for beautiful flash messages and notifications
 
 ## Requirements
 
@@ -47,6 +48,65 @@ php artisan vendor:publish --provider="TwenyCode\LaravelBlueprint\CoreServicePro
 This will publish the following configuration files:
 - `config/tweny-blueprint.php` - Main configuration settings
 - `config/tweny-hashids.php` - HashIds configuration
+
+## SweetAlert Integration
+
+This package includes integration with [RealRashid/SweetAlert](https://github.com/realrashid/sweet-alert) for beautiful flash messages and notifications.
+
+### Setup SweetAlert
+
+1. Make sure SweetAlert is installed:
+
+```bash
+composer require realrashid/sweet-alert
+```
+
+2. Publish SweetAlert assets:
+
+```bash
+php artisan vendor:publish --provider="RealRashid\SweetAlert\SweetAlertServiceProvider" --tag=sweetalert-config
+```
+
+3. Include the SweetAlert view component in your layout:
+
+```php
+<!-- Before closing </body> tag -->
+@include('sweetalert::alert')
+```
+
+4. If you encounter JavaScript errors about Swal not being defined, add SweetAlert's CDN in your layout:
+
+```html
+<!-- In your <head> section -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+<!-- Before closing </body> tag (before the @include above) -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+```
+
+### Using Flash Messages
+
+The Base Controller and Resource Controllers provide built-in methods for flash messaging:
+
+```php
+// Display a success message
+$this->successMsg('Operation completed successfully');
+
+// Display an error message
+$this->errorMsg('Something went wrong');
+
+// Redirect with a success message
+return $this->success('Changes saved');
+
+// Redirect to a route with a success message
+return $this->successRoute('users.index', 'User created successfully');
+
+// Redirect with an error message
+return $this->error('Operation failed');
+
+// Redirect to a route with an error message
+return $this->errorRoute('users.index', 'User could not be created');
+```
 
 ## Usage
 
