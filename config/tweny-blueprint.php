@@ -12,6 +12,15 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Blade Directive Configuration
+    |--------------------------------------------------------------------------
+    */
+
+    // Super admin role name used in blade directives
+    'super_admin_role' => 'superAdmin',
+
+    /*
+    |--------------------------------------------------------------------------
     | Cache Configuration
     |--------------------------------------------------------------------------
     */
@@ -82,7 +91,4 @@ return [
 
     // Whether to check authorization by default in controllers
     'check_authorization' => true,
-
-    // Super admin role name
-    'super_admin_role' => 'superAdmin',
 ];
