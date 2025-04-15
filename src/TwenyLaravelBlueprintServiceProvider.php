@@ -51,8 +51,6 @@ class TwenyLaravelBlueprintServiceProvider extends ServiceProvider
             $this->registerModelObservers();
         }
 
-        // Register blade directives
-        $this->registerHasPermissionDirectives();
     }
 
     /**
@@ -83,26 +81,5 @@ class TwenyLaravelBlueprintServiceProvider extends ServiceProvider
                 forward_static_call([$modelClass, 'observe'], ModelCacheObserver::class);
             }
         }
-    }
-
-    /**
-     * Register blade directives
-     *
-     * @return void
-     */
-    protected function registerHasPermissionDirectives()
-    {
-        /* check if auth user has permission */
-        Blade::if('hasPermission', function ($permission) {
-            if (auth()->check()) {
-                if (auth()->user()->hasRole(config('tweny-blueprint.super_admin_role', 'superAdmin'))) {
-                    return true;
-                }
-                return auth()->user()->hasAnyPermission($permission);
-            }
-            return redirect('login');
-        });
-
-        // You can add more blade directives here in the future
     }
 }
