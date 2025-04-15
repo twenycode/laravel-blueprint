@@ -2,6 +2,7 @@
 
 namespace TwenyCode\LaravelBlueprint;
 
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Eloquent\Model;
 use TwenyCode\LaravelBlueprint\Observers\ModelCacheObserver;
@@ -44,11 +45,14 @@ class TwenyLaravelBlueprintServiceProvider extends ServiceProvider
             __DIR__ . '/../config/tweny-blueprint.php' => config_path('tweny-blueprint.php'),
             __DIR__ . '/../config/tweny-hashids.php' => config_path('tweny-hashids.php'),
         ], 'tcb-config');
-        
-        // Register model observers - note the updated config key
+
+        // Register model observers
         if (config('tweny-blueprint.enable_cache_observers', true)) {
             $this->registerModelObservers();
         }
+
+        // Register blade directives
+        $this->registerHasPermissionDirectives();
     }
 
     /**
@@ -71,7 +75,7 @@ class TwenyLaravelBlueprintServiceProvider extends ServiceProvider
      */
     protected function registerModelObservers()
     {
-        // Get models to observe from config - note the updated config key
+        // Get models to observe from config
         $models = config('tweny-blueprint.observable_models', []);
 
         foreach ($models as $modelClass) {
@@ -79,5 +83,26 @@ class TwenyLaravelBlueprintServiceProvider extends ServiceProvider
                 forward_static_call([$modelClass, 'observe'], ModelCacheObserver::class);
             }
         }
+    }
+
+    /**
+     * Register blade directives
+     *
+     * @return void
+     */
+    protected function registerHasPermissionDirectives()
+    {
+        /* check if auth user has permission */
+        Blade::if('hasPermission', function ($permission) {
+            if (auth()->check()) {
+                if (auth()->user()->hasRole(config('tweny-blueprint.super_admin_role', 'superAdmin'))) {
+                    return true;
+                }
+                return auth()->user()->hasAnyPermission($permission);
+            }
+            return redirect('login');
+        });
+
+        // You can add more blade directives here in the future
     }
 }
