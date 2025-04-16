@@ -13,6 +13,13 @@ use Illuminate\Support\Facades\Config;
  */
 trait HashingIds
 {
+
+    // decode object IDs
+    public function getRouteKey()
+    {
+        return $this->encode();
+    }
+
     /**
      * Get Hashids instance with app-specific salt
      *
@@ -33,9 +40,9 @@ trait HashingIds
      * @param int $id The ID to encode
      * @return string The encoded ID
      */
-    public function encode($id): string
+    public function encode(): string
     {
-        return $this->getHasher()->encode($id);
+        return $this->getHasher()->encode($this->getKey());
     }
 
     /**
