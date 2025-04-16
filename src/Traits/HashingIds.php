@@ -28,7 +28,7 @@ trait HashingIds
     protected function getHasher(): Hashids
     {
         $salt = Config::get('tweny-hashids.connections.main.salt', Config::get('app.key', 'laravel-blueprint'));
-        $minLength = Config::get('tweny-hashids.connections.main.length', 6);
+        $minLength = Config::get('tweny-hashids.connections.main.length',24);
         $alphabet = Config::get('tweny-hashids.connections.main.alphabet', 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890');
 
         return new Hashids($salt, $minLength, $alphabet);
