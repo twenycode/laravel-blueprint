@@ -388,7 +388,20 @@ abstract class BaseRepository implements BaseRepositoryInterface
         return collect();
     }
 
-    
-    
-    
+    /**
+     * Delete all a record on where condition
+     */
+    public function deleteWhere($column,$value)
+    {
+        return $this->handleError(function () use ($column,$value) {
+            return $this->model
+                ->where($column,$value)
+                ->delete();
+        }, 'delete a record on where condition in repository');
+    }
+
+
+
+
+
 }

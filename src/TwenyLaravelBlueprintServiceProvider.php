@@ -2,6 +2,7 @@
 
 namespace TwenyCode\LaravelBlueprint;
 
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Eloquent\Model;
@@ -40,6 +41,8 @@ class TwenyLaravelBlueprintServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        Paginator::useBootstrap();
+
         // Publish configs
         $this->publishes([
             __DIR__ . '/../config/tweny-blueprint.php' => config_path('tweny-blueprint.php'),

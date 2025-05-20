@@ -13,6 +13,13 @@ use Illuminate\Support\Facades\Config;
  */
 trait HashingIds
 {
+
+    // decode object IDs
+    public function getRouteKey()
+    {
+        return $this->encode();
+    }
+
     /**
      * Get Hashids instance with app-specific salt
      *
@@ -21,7 +28,7 @@ trait HashingIds
     protected function getHasher(): Hashids
     {
         $salt = Config::get('tweny-hashids.connections.main.salt', Config::get('app.key', 'laravel-blueprint'));
-        $minLength = Config::get('tweny-hashids.connections.main.length', 6);
+        $minLength = Config::get('tweny-hashids.connections.main.length',24);
         $alphabet = Config::get('tweny-hashids.connections.main.alphabet', 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890');
 
         return new Hashids($salt, $minLength, $alphabet);
@@ -33,9 +40,9 @@ trait HashingIds
      * @param int $id The ID to encode
      * @return string The encoded ID
      */
-    public function encode($id): string
+    public function encode(): string
     {
-        return $this->getHasher()->encode($id);
+        return $this->getHasher()->encode($this->getKey());
     }
 
     /**
