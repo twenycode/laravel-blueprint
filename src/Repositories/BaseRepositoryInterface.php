@@ -181,5 +181,10 @@ interface BaseRepositoryInterface
      */
     public function updateActiveStatus($object, $status = null);
 
+    /**
+     * delete all records based on column and value
+     */
+    public function deleteWhere($column, $value);
+
 
 }
