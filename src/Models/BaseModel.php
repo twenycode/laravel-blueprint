@@ -48,7 +48,6 @@ class BaseModel extends Model
         $this->attributes['end_date'] = $value ? DateHelper::dateTimeConversion($value, 'Y-m-d H:i:s') : null;
     }
 
-
     /**
      * Set the generic date attribute with proper format conversion
      */
@@ -79,7 +78,6 @@ class BaseModel extends Model
     {
         return DateHelper::dateTimeConversion($value, 'm/d/Y');
     }
-
 
     /**
      * Get generic date formatted for display
@@ -117,26 +115,16 @@ class BaseModel extends Model
         }
     }
 
-
-
-
-
-
-
-
-    /*
-    |--------------------
-    | RELATIONSHIPS
-    |--------------------
-    */
-
     /**
-     * Define common relationships that can be inherited by child models
-     * These can be overridden or extended in child classes
+     * Get Active Status
      */
-
-
-
+    public function getActiveAttribute()
+    {
+        if ( $this->isActive ?? $this->is_active) {
+            return '<span class="badge rounded-pill text-bg-success">Yes</span>';
+        }
+        return '<span class="badge  rounded-pill text-bg-danger">No</span>';
+    }
 
 
 
@@ -162,16 +150,5 @@ class BaseModel extends Model
         }
         return null;
     }
-
-
-    /*
-    * Local Scopes
-    */
-
-    /**
-     * Define common local scopes that can be inherited by child models
-     * These can be overridden or extended in child classes
-     */
-
 
 }
