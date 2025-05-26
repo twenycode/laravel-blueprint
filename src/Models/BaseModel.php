@@ -121,9 +121,9 @@ class BaseModel extends Model
     public function getActiveAttribute()
     {
         if ( $this->isActive ?? $this->is_active) {
-            return '<span class="badge rounded-pill text-bg-success">Yes</span>';
+            return '<span class="badge text-bg-success p-2">Yes</span>';
         }
-        return '<span class="badge  rounded-pill text-bg-danger">No</span>';
+        return '<span class="badge text-bg-danger p-2">No</span>';
     }
 
 
