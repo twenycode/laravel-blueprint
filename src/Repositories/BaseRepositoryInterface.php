@@ -187,4 +187,12 @@ interface BaseRepositoryInterface
     public function deleteWhere($column, $value);
 
 
+    /**
+     * Get all the data and order by specific column
+     */
+    public function orderBy($column, $value);
+
+
+
+
 }

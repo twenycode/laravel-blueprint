@@ -400,7 +400,20 @@ abstract class BaseRepository implements BaseRepositoryInterface
         }, 'delete a record on where condition in repository');
     }
 
-
+    /**
+     * Get all the record and order by specific column
+     */
+    public function orderBy($column,$value)
+    {
+        return $this->handleError(function () use ($column,$value) {
+            if(!is_null($value) && !is_null($column)) {
+                return $this->model
+                    ->orderBy($column,$value)
+                    ->get();
+            }
+            return null;
+        }, 'get all the record and order by specific column');
+    }
 
 
 
