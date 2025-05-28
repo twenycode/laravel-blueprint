@@ -394,7 +394,7 @@ public function findActiveByEmail($email)
     return $this->handleError(function () use ($email) {
         return $this->model
             ->where('email', $email)
-            ->where('isActive', true)
+            ->where('is_active', true)
             ->first();
     }, 'find active user by email');
 }
