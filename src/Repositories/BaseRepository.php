@@ -114,7 +114,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
             $cacheKey = $this->generateCacheKey('active_with_relationship');
             return $this->remember($cacheKey, function () {
                 return $this->model
-                    ->where('isActive', 1)
+                    ->where('is_active', 1)
                     ->with($this->relationships)
                     ->get();
             });
@@ -132,7 +132,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
             $cacheKey = $this->generateCacheKey('inactive_with_relationship');
             return $this->remember($cacheKey, function () {
                 return $this->model
-                    ->where('isActive', 0)
+                    ->where('is_active', 0)
                     ->with($this->relationships)
                     ->get();
             });
@@ -281,9 +281,9 @@ abstract class BaseRepository implements BaseRepositoryInterface
     {
         return $this->handleError(
             function () use ($object, $status) {
-                $object->isActive = $this->getNewActiveState($object, $status);
+                $object->is_active = $this->getNewActiveState($object, $status);
                 $object->save();
-                return $object->isActive ? 'activated' : 'deactivated';
+                return $object->is_active ? 'activated' : 'deactivated';
             },
             'change the active status'
         );
@@ -298,7 +298,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
      */
     private function getNewActiveState($object, $status = null): bool
     {
-        return $status !== null ? $status !== 'active' : !$object->isActive;
+        return $status !== null ? $status !== 'active' : !$object->is_active;
     }
     
 
@@ -313,7 +313,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
             $cacheKey = $this->generateCacheKey('active');
             return $this->remember($cacheKey, function () {
                 return $this->model
-                    ->where('isActive', 1)
+                    ->where('is_active', 1)
                     ->get();
             });
         }, 'list all active records');
@@ -330,7 +330,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
             $cacheKey = $this->generateCacheKey('pluck_active');
             return $this->remember($cacheKey, function () {
                 return $this->model
-                    ->where('isActive', 1)
+                    ->where('is_active', 1)
                     ->pluck('name', 'id');
             });
         }, 'pluck all active records');

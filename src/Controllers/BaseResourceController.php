@@ -339,7 +339,7 @@ abstract class BaseResourceController extends Controller
         return $this->handleError(function () use ($id) {
             $status = $this->layer->updateActiveStatus($id);
             return $this->success("{$this->controllerName} has been " . $status);
-        }, "change the isActive column status");
+        }, "change the is_active column status");
     }
 
     /**
