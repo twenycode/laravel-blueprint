@@ -66,7 +66,7 @@ trait ErrorHandlerTrait
      * @return mixed
      * @throws Exception If handling fails
      */
-    private function handleSpecificException(Exception $e, string $context, $request = null)
+    private function     handleSpecificException(Exception $e, string $context, $request = null)
     {
         Log::warning($this->getClassName() . ": {$context}: " . $e->getMessage());
 

@@ -2,19 +2,20 @@
 
 namespace TwenyCode\LaravelBlueprint\Controllers;
 
-use TwenyCode\LaravelBlueprint\Traits\ErrorHandlerTrait;
-use TwenyCode\LaravelBlueprint\Traits\ResponseHandlerTrait;
+use TwenyCode\LaravelBlueprint\Traits\JsonResponseTrait;
 use TwenyCode\LaravelBlueprint\Helpers\TextHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 
 /**
- * Base Resource Controller with standard CRUD operations
+ * Base API Resource Controller with standard CRUD operations
+ * and JSON response formatting
  */
-abstract class BaseResourceController extends Controller
+abstract class BaseApiResourceController extends Controller
 {
-    use ErrorHandlerTrait, ResponseHandlerTrait;
+    use JsonResponseTrait;
 
     /** The controller's display name */
     protected $controllerName;
@@ -22,16 +23,13 @@ abstract class BaseResourceController extends Controller
     /** Service or Repository interface */
     protected $layer;
 
-    /** Base view name for the resource */
-    protected $baseViewName;
-
     /** Base route name for the resource */
     protected $baseRouteName;
 
     /** Whether to check authorization */
     protected $checkAuthorization = true;
 
-    /** Variable name for views */
+    /** Variable name for JSON responses */
     protected $resourceVariable;
 
     /** Whether the resource has relationships */
@@ -40,153 +38,127 @@ abstract class BaseResourceController extends Controller
     /**
      * Display a listing of the resources.
      */
-    public function index()
+    public function index(): JsonResponse
     {
         $this->authorizeAction('view');
 
         return $this->handleError(function () {
             $items = $this->hasRelationShips ? $this->layer->getAllWithRelationships() : $this->layer->getAll();
             $variableName = $this->getResourceVariableName(true);
-            return view($this->getView('index'), [$variableName => $items]);
+            return $this->successResponse([$variableName => $items], "Retrieved {$this->controllerName} list");
         }, 'retrieve all resources');
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        $this->authorizeAction('create');
-
-        return $this->handleError(function () {
-            $item = $this->layer->model();
-            $variableName = $this->getResourceVariableName();
-            return view($this->getView('create'), [$variableName => $item]);
-        }, "show create form");
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function processStore($request)
+    public function processStore($request): JsonResponse
     {
         $this->authorizeAction('create');
 
         return $this->handleError(function () use ($request) {
-            $this->layer->create($request->validated());
-            return $this->success("New {$this->controllerName} added");
+            $item = $this->layer->create($request->validated());
+            $variableName = $this->getResourceVariableName();
+            return $this->successResponse([$variableName => $item], "New {$this->controllerName} created", 201);
         }, "create new", $request->input());
     }
 
     /**
      * Display the specified resource.
      */
-    public function show($id)
+    public function show($id): JsonResponse
     {
         $this->authorizeAction('view');
 
         return $this->handleError(function () use ($id) {
             $item = $this->layer->findById($id);
             $variableName = $this->getResourceVariableName();
-            return view($this->getView('show'), [$variableName => $item]);
+            return $this->successResponse([$variableName => $item], "{$this->controllerName} retrieved");
         }, "show with ID {$id}");
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit($id)
-    {
-        $this->authorizeAction('update');
-
-        return $this->handleError(function () use ($id) {
-            $item = $this->layer->findById($id);
-            $variableName = $this->getResourceVariableName();
-            return view($this->getView('edit'), [$variableName => $item]);
-        }, "edit with ID {$id}");
     }
 
     /**
      * Process update operation for a resource.
      */
-    protected function processUpdate($request, $id)
+    protected function processUpdate($request, $id): JsonResponse
     {
         $this->authorizeAction('update');
 
         return $this->handleError(function () use ($id, $request) {
-            $this->layer->update($id, $request->validated());
-            return $this->successRoute($this->baseRouteName . '.index', "{$this->controllerName} updated");
+            $item = $this->layer->update($id, $request->validated());
+            $variableName = $this->getResourceVariableName();
+            return $this->successResponse([$variableName => $item], "{$this->controllerName} updated");
         }, "update", $request->input());
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy($id): JsonResponse
     {
         $this->authorizeAction('delete');
 
         return $this->handleError(function () use ($id) {
             $this->layer->delete($id);
-            return $this->success("{$this->controllerName} deleted");
+            return $this->successResponse(null, "{$this->controllerName} deleted", 204);
         }, "delete with ID {$id}");
     }
 
     /**
      * Get all soft deleted records.
      */
-    public function trashed()
+    public function trashed(): JsonResponse
     {
         $this->authorizeAction('delete');
 
         return $this->handleError(function () {
             $items = $this->layer->trashed();
             $variableName = $this->getResourceVariableName(true);
-            return view($this->getView('trash'), [$variableName => $items]);
+            return $this->successResponse([$variableName => $items], "Retrieved trashed {$this->controllerName} list");
         }, "get all soft deleted records");
     }
 
     /**
      * Restore the specified soft deleted resource from storage.
      */
-    public function restore($id)
+    public function restore($id): JsonResponse
     {
         $this->authorizeAction('delete');
 
         return $this->handleError(function () use ($id) {
             $this->layer->restore($id);
-            return $this->success("{$this->controllerName} restored");
+            return $this->successResponse(null, "{$this->controllerName} restored");
         }, "restore record with ID {$id}");
     }
 
     /**
      * Permanently delete the specified soft deleted resource from storage.
      */
-    public function forceDelete($id)
+    public function forceDelete($id): JsonResponse
     {
         $this->authorizeAction('delete');
 
         return $this->handleError(function () use ($id) {
             $this->layer->forceDelete($id);
-            return $this->success("{$this->controllerName} permanently deleted");
+            return $this->successResponse(null, "{$this->controllerName} permanently deleted", 204);
         }, "permanent delete record with ID {$id}");
     }
 
     /**
      * Update the active status of a resource.
      */
-    public function updateActiveStatus($id)
+    public function updateActiveStatus($id): JsonResponse
     {
         $this->authorizeAction('update');
 
         return $this->handleError(function () use ($id) {
             $status = $this->layer->updateActiveStatus($id);
-            return $this->success("{$this->controllerName} has been " . $status);
+            return $this->successResponse(null, "{$this->controllerName} has been " . $status);
         }, "change the is_active column status");
     }
 
     /**
-     * Get the resource variable name for view.
+     * Get the resource variable name for JSON responses.
      */
     protected function getResourceVariableName($plural = false)
     {
@@ -194,14 +166,6 @@ abstract class BaseResourceController extends Controller
             return TextHelper::pluralizeVariableName($this->resourceVariable);
         }
         return $this->resourceVariable;
-    }
-
-    /**
-     * Get view path for the specified action.
-     */
-    public function getView($action)
-    {
-        return $this->baseViewName . '.' . $action;
     }
 
     /**
@@ -216,5 +180,10 @@ abstract class BaseResourceController extends Controller
             abort(403, 'Unauthorized action.');
         }
         return true;
+    }
+
+    private function getClassName(): string
+    {
+        return $this->controllerName ?? class_basename($this);
     }
 }
