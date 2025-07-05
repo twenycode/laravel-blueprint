@@ -12,7 +12,7 @@ Laravel Blueprint provides a solid foundation for building Laravel applications 
 
 ## Features
 
-- **Repository Pattern** - Standardized data access layer with built-in caching support
+- **Repository Pattern** - Comprehensive data access layer with built-in caching support
 - **Service Layer** - Business logic abstraction with database transaction management
 - **Resource Controllers** - Base controllers with CRUD operations, error handling, and flash messaging
 - **Model Enhancements** - Feature-rich base model with common attributes and methods
@@ -23,10 +23,12 @@ Laravel Blueprint provides a solid foundation for building Laravel applications 
 - **Form Request Validation** - Permission-based request validation
 - **Soft Delete Support** - Ready-to-use methods for handling soft deletes
 - **Flash Messaging** - Integrated SweetAlert for beautiful flash messages and notifications
+- **Custom Validation Rules** - Composite key uniqueness validation
+- **API Support** - JSON response handling for API controllers
 
 ## Requirements
 
-- PHP 8.0+
+- PHP 8.2+
 - Laravel 8.0+
 
 ## Installation
@@ -42,7 +44,7 @@ composer require twenycode/laravel-blueprint
 Publish the configuration files:
 
 ```bash
-php artisan vendor:publish --provider="TwenyCode\LaravelBlueprint\CoreServiceProvider" --tag="tcb-config"
+php artisan vendor:publish --provider="TwenyCode\LaravelBlueprint\TwenyLaravelBlueprintServiceProvider" --tag="tcb-config"
 ```
 
 This will publish the following configuration files:
@@ -112,7 +114,9 @@ return $this->errorRoute('users.index', 'User could not be created');
 
 ### Repositories
 
-Extend the base repository to create repository classes for your models:
+The BaseRepository provides a comprehensive set of methods for data access:
+
+#### Basic CRUD Operations
 
 ```php
 <?php
@@ -141,6 +145,52 @@ class UserRepository extends BaseRepository
     }
 }
 ```
+
+#### All Available Repository Methods
+
+**Model & Utility Methods:**
+- `model()` - Get model instance
+- `decode($id)` - Decode hashed ID
+
+**Basic CRUD Operations:**
+- `getAll()` - Retrieve all records
+- `create(array $data)` - Create new record
+- `show($id)` - Show record by ID (alias for findById)
+- `findById($id)` - Find record by ID
+- `update($id, array $data)` - Update existing record
+- `delete($id)` - Delete record
+
+**Relationship Methods:**
+- `getAllWithRelationships()` - Get all records with relationships
+- `getActiveDataWithRelations()` - Get active records with relationships
+- `getInactiveDataWithRelations()` - Get inactive records with relationships
+
+**Status-Based Methods:**
+- `getActiveData()` - Get all active records
+- `pluckActiveData()` - Get active records as name-id pairs
+- `updateActiveStatus($object, $status = null)` - Toggle active status
+
+**Soft Delete Methods:**
+- `trashed()` - Get soft-deleted records
+- `findTrashedById($id)` - Find soft-deleted record by ID
+- `restore($id)` - Restore soft-deleted record
+- `forceDelete($id)` - Permanently delete record
+
+**Query & Search Methods:**
+- `searchByQuery(string $searchTerm)` - Search records by query
+- `liveSearch(string $searchTerm)` - Live search for records
+- `getInformationBy(string $filterTerm)` - Get filtered information
+- `paginateWithRelationships($perPage = 25)` - Paginate with relationships
+
+**Utility Methods:**
+- `deleteWhere($column, $value)` - Delete records based on column value
+- `orderBy($column, $value)` - Get records ordered by column
+
+**Caching Methods (via RepositoryCacheTrait):**
+- `setCacheDuration(int $minutes)` - Set cache duration
+- `generateCacheKey(...$args)` - Generate cache key
+- `forgetCache(array $keys)` - Forget specific cache keys
+- `clearCacheKey()` - Clear all cache keys for model
 
 ### Services
 
@@ -174,7 +224,43 @@ class UserService extends BaseService
 }
 ```
 
+#### All Available Service Methods
+
+**Model & Utility Methods:**
+- `model()` - Get model instance
+
+**Basic CRUD Operations:**
+- `getAll()` - Retrieve all records
+- `create(array $data)` - Create new record
+- `show($id)` - Show record by ID
+- `findById($id)` - Find record by ID
+- `update($id, array $data)` - Update existing record
+- `delete($id)` - Delete record
+
+**Relationship Methods:**
+- `getAllWithRelationships()` - Get all records with relationships
+- `getActiveDataWithRelations()` - Get active records with relationships
+- `getInactiveDataWithRelations()` - Get inactive records with relationships
+
+**Status Methods:**
+- `updateActiveStatus($modelId, $status = null)` - Update active status
+
+**Soft Delete Methods:**
+- `trashed()` - Get soft-deleted records
+- `restore($id)` - Restore soft-deleted record
+- `forceDelete($id)` - Permanently delete record
+
+**Query & Search Methods:**
+- `searchByQuery(string $searchTerm)` - Search records by query
+- `liveSearch(string $searchTerm)` - Live search for records
+- `getInformationBy(string $filterTerm)` - Get filtered information
+
+**Transaction Support:**
+- `transaction(Closure $callback, int $attempts = 1)` - Execute within database transaction
+
 ### Controllers
+
+#### Web Resource Controllers
 
 Create resource controllers by extending the base resource controller:
 
@@ -212,6 +298,68 @@ class UserController extends BaseResourceController
 }
 ```
 
+**Available Controller Methods:**
+- `index()` - Display listing of resources
+- `create()` - Show form for creating new resource
+- `processStore($request)` - Store newly created resource
+- `show($id)` - Display specified resource
+- `edit($id)` - Show form for editing resource
+- `processUpdate($request, $id)` - Update specified resource
+- `destroy($id)` - Remove specified resource
+- `trashed()` - Get soft-deleted records
+- `restore($id)` - Restore soft-deleted resource
+- `forceDelete($id)` - Permanently delete resource
+- `updateActiveStatus($id)` - Update active status
+- `authorizeAction($action, $object = null)` - Check permissions
+
+#### API Resource Controllers
+
+For API endpoints, extend the BaseApiResourceController:
+
+```php
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Requests\UserStoreRequest;
+use App\Http\Requests\UserUpdateRequest;
+use App\Services\UserService;
+use TwenyCode\LaravelBlueprint\Controllers\BaseApiResourceController;
+
+class UserController extends BaseApiResourceController
+{
+    public function __construct(UserService $service)
+    {
+        $this->layer = $service;
+        $this->controllerName = 'User';
+        $this->baseRouteName = 'users';
+        $this->resourceVariable = 'user';
+        $this->hasRelationShips = true;
+    }
+    
+    public function store(UserStoreRequest $request)
+    {
+        return $this->processStore($request);
+    }
+    
+    public function update(UserUpdateRequest $request, $id)
+    {
+        return $this->processUpdate($request, $id);
+    }
+}
+```
+
+**Available API Controller Methods:**
+- `index()` - Get all resources (JSON)
+- `processStore($request)` - Create new resource (JSON)
+- `show($id)` - Get specific resource (JSON)
+- `processUpdate($request, $id)` - Update resource (JSON)
+- `destroy($id)` - Delete resource (JSON)
+- `trashed()` - Get soft-deleted resources (JSON)
+- `restore($id)` - Restore soft-deleted resource (JSON)
+- `forceDelete($id)` - Permanently delete resource (JSON)
+- `updateActiveStatus($id)` - Update active status (JSON)
+
 ### Models
 
 Create models by extending the base model:
@@ -240,6 +388,15 @@ class User extends BaseModel
     }
 }
 ```
+
+**Available Model Features:**
+- **ID Hashing:** `encode()`, `decode($value)`, `getEncodedIdAttribute()`
+- **Activity Logging:** Automatic logging of model changes
+- **Date Mutators:** Automatic date formatting for `start_date`, `end_date`, `date`
+- **Date Accessors:** Formatted date display methods
+- **Status Methods:** `activate()`, `deactivate()`
+- **Scopes:** `active()`, `inactive()`, `ordered()`, `boolean()`
+- **Utility Methods:** `returnID($data)` for ID lookup by name
 
 ### Form Requests
 
@@ -270,6 +427,45 @@ class UserStoreRequest extends BaseFormRequest
 }
 ```
 
+**Available Form Request Methods:**
+- `checkPermission($permission)` - Check user permission with super admin bypass
+
+### Custom Validation Rules
+
+#### Composite Key Uniqueness Rule
+
+For validating unique combinations of fields:
+
+```php
+<?php
+
+namespace App\Http\Requests;
+
+use TwenyCode\LaravelBlueprint\Http\Requests\BaseFormRequest;
+use TwenyCode\LaravelBlueprint\Rules\CompositeKeyUniquenessChecker;
+
+class ProjectMemberRequest extends BaseFormRequest
+{
+    public function rules()
+    {
+        return [
+            'user_id' => [
+                'required',
+                'exists:users,id',
+                new CompositeKeyUniquenessChecker(
+                    'project_members', 
+                    [
+                        'project_id' => $this->project_id,
+                        'user_id' => $this->user_id,
+                    ],
+                    $this->route('id') // For updates
+                )
+            ],
+        ];
+    }
+}
+```
+
 ## Helper Functions
 
 The package provides a wide range of helper functions:
@@ -282,6 +478,15 @@ $formattedDate = dateTimeConversion('2023-01-01', 'd M Y');  // "01 Jan 2023"
 
 // Calculate days between dates
 $daysBetween = numberOfDays('2023-01-01', '2023-01-15');  // 14
+
+// Calculate age in days
+$age = calculateAge('1990-01-01');  // Age in days
+
+// Get human-readable date difference
+$diff = dateDifference('2023-01-01', '2023-02-01');  // "1 months"
+
+// Calculate remaining days
+$remaining = calculateRemainingDays('2023-12-31');  // Days until date
 
 // Format time ago
 $timeAgo = formatTimeAgo('2023-01-01 12:00:00');  // "3 months ago"
@@ -298,6 +503,7 @@ $fileSize = formatFileSize(1024 * 1024);  // "1.00 MB"
 
 // Format currency
 $amount = formatCurrencyDecimal(1234.56);  // "1,234.56"
+$rounded = formatCurrency(1234.56);  // "1,235"
 $money = formatMoney(1234.56);  // "$ 1,234.56"
 
 // Calculate percentages
@@ -308,18 +514,84 @@ $value = calculatePercentNumber(15, 200);  // 30
 
 ```php
 // Manipulate strings
+$withoutUnderscores = removeUnderscore('hello_world');  // "hello world"
+$withUnderscores = addUnderscore('hello world');  // "hello_world"
 $snakeCase = snake('HelloWorld');  // "hello_world"
 $headlined = headline('user_profile_settings');  // "User Profile Settings"
 
 // Work with plurals
 $plural = pluralize('category');  // "categories"
-$variableName = pluralizeVariableName('userProfile');  // "userProfiles"
+$pluralVar = pluralizeVariableName('userProfile');  // "userProfiles"
+
+// Handle pluralization
+$suffix = plural(1);  // ""
+$suffix = plural(2);  // "s"
 
 // Trim text
 $trimmed = trimWords('This is a long text that needs trimming', 5);  // "This is a long text..."
+$trimmedHtml = trimHtmlWords('<p>This is a <strong>long</strong> text</p>', 3);  // "<p>This is a...</p>"
 ```
 
-## Customization
+## Caching System
+
+### Repository Caching
+
+The package includes automatic caching for repository methods:
+
+```php
+// Repository methods are automatically cached
+$users = $userRepository->getAll();  // Cached for 24 hours by default
+
+// Customize cache duration
+$users = $userRepository->setCacheDuration(60)->getAll();  // Cache for 1 hour
+
+// Clear cache manually
+$userRepository->clearCacheKey();
+
+// Forget specific cache keys
+$userRepository->forgetCache(['all', 'active']);
+```
+
+### Event Caching
+
+For event-based caching, use the EventCacheTrait:
+
+```php
+<?php
+
+namespace App\Repositories;
+
+use TwenyCode\LaravelBlueprint\Repositories\BaseRepository;
+use TwenyCode\LaravelBlueprint\Traits\EventCacheTrait;
+
+class EventRepository extends BaseRepository
+{
+    use EventCacheTrait;
+    
+    public function getUpcomingEvents()
+    {
+        return $this->rememberEventCache('upcoming', function() {
+            return $this->model->where('start_date', '>', now())->get();
+        });
+    }
+}
+```
+
+### Model Cache Observers
+
+Models are automatically observed for cache clearing:
+
+```php
+// In config/tweny-blueprint.php
+'observable_models' => [
+    \App\Models\User::class,
+    \App\Models\Product::class,
+],
+
+// Cache is automatically cleared when models are created, updated, or deleted
+```
+
+## Configuration
 
 ### Cache Configuration
 
@@ -331,7 +603,8 @@ Configure caching behavior in `config/tweny-blueprint.php`:
 
 // Common cache keys
 'cache_keys' => [
-    'all', 'active', 'inactive', 'with_relations', 'trashed', 'paginated'
+    'all', 'with_relationship', 'active_with_relationship', 
+    'inactive_with_relationship', 'trashed', 'paginated', 'active', 'pluck_active'
 ],
 
 // Default cache duration in minutes
@@ -361,7 +634,6 @@ Configure model behavior in `config/tweny-blueprint.php`:
 'observable_models' => [
     \App\Models\User::class,
     \App\Models\Product::class,
-    // Add your model classes here
 ],
 
 // User-specific cache models (for per-user data)
@@ -382,6 +654,30 @@ Configure authorization settings in `config/tweny-blueprint.php`:
 'super_admin_role' => 'superAdmin',
 ```
 
+## Error Handling
+
+All components use standardized error handling:
+
+```php
+// In repositories, services, and controllers
+protected function handleError(callable $function, string $context, mixed $request = null, string $msg = 'Something went wrong')
+{
+    try {
+        return $function();
+    } catch (Exception $e) {
+        // Automatic logging and graceful error handling
+        Log::error("Failed to {$context}: " . $e->getMessage());
+        
+        // Return appropriate response based on context
+        if (method_exists($this, 'error')) {
+            return $this->error($msg);
+        }
+        
+        throw $e;
+    }
+}
+```
+
 ## Extending The Package
 
 ### Custom Repositories
@@ -397,6 +693,17 @@ public function findActiveByEmail($email)
             ->where('is_active', true)
             ->first();
     }, 'find active user by email');
+}
+
+public function getPopularUsers($limit = 10)
+{
+    return $this->handleError(function () use ($limit) {
+        return $this->model
+            ->withCount('posts')
+            ->orderBy('posts_count', 'desc')
+            ->limit($limit)
+            ->get();
+    }, 'get popular users');
 }
 ```
 
@@ -424,6 +731,118 @@ public function registerUser(array $data)
         return $user;
     });
 }
+
+public function bulkUpdateStatus(array $userIds, bool $status)
+{
+    return $this->transaction(function () use ($userIds, $status) {
+        foreach ($userIds as $userId) {
+            $this->repository->update($userId, ['is_active' => $status]);
+        }
+        return count($userIds);
+    });
+}
+```
+
+## Testing
+
+The package is designed to be easily testable:
+
+```php
+<?php
+
+namespace Tests\Feature;
+
+use Tests\TestCase;
+use App\Models\User;
+use App\Repositories\UserRepository;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+class UserRepositoryTest extends TestCase
+{
+    use RefreshDatabase;
+    
+    public function test_can_create_user()
+    {
+        $repository = new UserRepository(new User());
+        
+        $userData = [
+            'name' => 'John Doe',
+            'email' => 'john@example.com',
+            'password' => 'password123',
+        ];
+        
+        $user = $repository->create($userData);
+        
+        $this->assertInstanceOf(User::class, $user);
+        $this->assertEquals('John Doe', $user->name);
+        $this->assertDatabaseHas('users', ['email' => 'john@example.com']);
+    }
+    
+    public function test_can_find_active_users()
+    {
+        User::factory()->count(3)->create(['is_active' => true]);
+        User::factory()->count(2)->create(['is_active' => false]);
+        
+        $repository = new UserRepository(new User());
+        $activeUsers = $repository->getActiveData();
+        
+        $this->assertCount(3, $activeUsers);
+    }
+}
+```
+
+## Performance Considerations
+
+### Caching Strategy
+
+- Repository methods are cached by default for 24 hours
+- User-specific caching for employee role data
+- Automatic cache invalidation on model changes
+- Configurable cache duration per operation
+
+### Database Optimization
+
+- Eager loading relationships by default
+- Pagination support for large datasets
+- Selective querying with active/inactive scopes
+- Efficient soft delete handling
+
+### Memory Management
+
+- Lazy loading of relationships when not needed
+- Configurable pagination limits
+- Efficient query building with repository pattern
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Cache not clearing**: Ensure model observers are registered in config
+2. **Hash IDs not working**: Check HASHIDS_SALT environment variable
+3. **Permission errors**: Verify user roles and permissions setup
+4. **SweetAlert not displaying**: Check JavaScript console for errors
+
+### Debug Mode
+
+Enable debug logging by adding to your `.env`:
+
+```env
+LOG_LEVEL=debug
+```
+
+### Performance Monitoring
+
+Monitor cache hit rates and query performance:
+
+```php
+// Log cache operations
+Log::info('Cache hit for key: ' . $cacheKey);
+
+// Monitor query counts
+DB::enableQueryLog();
+// ... your operations
+$queries = DB::getQueryLog();
+Log::info('Query count: ' . count($queries));
 ```
 
 ## Contributing
