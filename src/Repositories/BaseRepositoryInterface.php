@@ -18,14 +18,6 @@ interface BaseRepositoryInterface
     public function model();
 
     /**
-     * Decode a hashed model ID
-     *
-     * @param mixed $id ID to decode
-     * @return mixed
-     */
-    public function decode($id);
-
-    /**
      * Retrieve all records
      *
      * @return \Illuminate\Database\Eloquent\Collection
