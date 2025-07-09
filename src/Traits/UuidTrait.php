@@ -5,77 +5,58 @@ namespace TwenyCode\LaravelBlueprint\Traits;
 use Illuminate\Support\Str;
 
 /**
- * Trait for UUID primary keys
+ * UUID Trait for Models
  *
- * Provides automatic UUID generation for model primary keys
- * and related functionality for UUID-based models.
+ * This trait can be used on any Eloquent model to automatically
+ * generate UUIDs for the primary key. It works independently
+ * of the BaseModel class.
  */
 trait UuidTrait
 {
     /**
-     * Boot the UUID trait for the model.
+     * Boot the UUID trait
      */
-    public static function bootUuidTrait()
+    protected static function bootUuidTrait()
     {
         static::creating(function ($model) {
-            if ($model->useUuids && empty($model->{$model->getKeyName()})) {
+            if (empty($model->{$model->getKeyName()})) {
                 $model->{$model->getKeyName()} = (string) Str::uuid();
             }
         });
     }
 
     /**
-     * Get the primary key for the model.
+     * Initialize the UUID trait
      */
-    public function getKeyName()
+    public function initializeUuidTrait()
     {
-        return 'id';
+        // Set the key type to string for UUIDs
+        $this->keyType = 'string';
+
+        // Disable auto-incrementing
+        $this->incrementing = false;
     }
 
     /**
-     * Get the auto-incrementing key type.
+     * Generate a new UUID
      */
-    public function getKeyType()
-    {
-        return $this->useUuids ? 'string' : 'int';
-    }
-
-    /**
-     * Get the value indicating whether the IDs are incrementing.
-     */
-    public function getIncrementing()
-    {
-        return !$this->useUuids;
-    }
-
-    /**
-     * Generate a new UUID for the model.
-     */
-    public function generateUuid()
+    public function generateUuid(): string
     {
         return (string) Str::uuid();
     }
 
     /**
-     * Check if the model uses UUIDs
+     * Check if a string is a valid UUID
      */
-    public function usesUuids()
+    public static function isValidUuid(string $uuid): bool
     {
-        return $this->useUuids ?? false;
-    }
-
-    /**
-     * Scope to find by UUID
-     */
-    public function scopeByUuid($query, $uuid)
-    {
-        return $query->where($this->getKeyName(), $uuid);
+        return Str::isUuid($uuid);
     }
 
     /**
      * Find a model by UUID
      */
-    public static function findByUuid($uuid)
+    public static function findByUuid(string $uuid)
     {
         return static::where((new static)->getKeyName(), $uuid)->first();
     }
@@ -83,16 +64,36 @@ trait UuidTrait
     /**
      * Find a model by UUID or fail
      */
-    public static function findByUuidOrFail($uuid)
+    public static function findByUuidOrFail(string $uuid)
     {
         return static::where((new static)->getKeyName(), $uuid)->firstOrFail();
     }
 
     /**
-     * Check if a string is a valid UUID
+     * Scope to find by UUID
      */
-    public static function isValidUuid($uuid)
+    public function scopeByUuid($query, string $uuid)
     {
-        return Str::isUuid($uuid);
+        return $query->where($this->getKeyName(), $uuid);
     }
+
+    /**
+     * Get the route key for the model (returns UUID)
+     */
+    public function getRouteKey()
+    {
+        return $this->getAttribute($this->getRouteKeyName());
+    }
+
+    /**
+     * Override route model binding to work with UUIDs
+     */
+    public function resolveRouteBinding($value, $field = null)
+    {
+        return $this->where($field ?? $this->getRouteKeyName(), $value)->first();
+    }
+
+
+
+
 }
