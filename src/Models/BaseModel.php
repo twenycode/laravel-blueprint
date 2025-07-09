@@ -2,19 +2,20 @@
 
 namespace TwenyCode\LaravelBlueprint\Models;
 
-use TwenyCode\LaravelBlueprint\Traits\HashingIds;
+use TwenyCode\LaravelBlueprint\Traits\UuidTrait;
 use TwenyCode\LaravelBlueprint\Helpers\DateHelper;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
+
 /**
  * Base Model class with common functionality for all models
  */
 class BaseModel extends Model
 {
-    use HashingIds, LogsActivity, HasFactory;
+    use UuidTrait, LogsActivity, HasFactory;
 
     /**
      * Configure activity logging options
