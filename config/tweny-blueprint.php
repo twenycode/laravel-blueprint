@@ -39,6 +39,36 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | HashIds Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configuration for ID hashing and obfuscation.
+    | Used when working with hashed integer IDs instead of UUIDs.
+    |
+    */
+
+    'hashids' => [
+        // Default connection name
+        'default' => 'main',
+
+        // Hashids connections
+        'connections' => [
+            'main' => [
+                'salt' => env('HASHIDS_SALT', config('app.key')),
+                'length' => 6,
+                'alphabet' => 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890',
+            ],
+
+            'alternative' => [
+                'salt' => env('HASHIDS_ALT_SALT', 'your-salt-string'),
+                'length' => 8,
+                'alphabet' => 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890',
+            ],
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Model Classes
     |--------------------------------------------------------------------------
     |
