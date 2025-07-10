@@ -47,6 +47,19 @@ abstract class BaseRepository implements BaseRepositoryInterface
     }
 
     /**
+     * Decode model ID
+     *
+     * @param mixed $id ID to decode
+     * @return mixed
+     */
+    public function decode($id)
+    {
+        return $this->handleError(function () use ($id) {
+            return $this->model->decode($id);
+        }, 'decode ID');
+    }
+
+    /**
      * Get model instance
      *
      * @return Model
@@ -160,7 +173,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
     public function findById($id)
     {
         return $this->handleError(function () use ($id) {
-            return $this->model->findOrFail($id);
+            return $this->model->findOrFail($this->decode($id));
         }, 'find a record by ID');
     }
 
@@ -222,7 +235,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
     {
         return $this->handleError(function () use ($id) {
             return $this->model->onlyTrashed()
-                ->findOrFail($id);
+                ->findOrFail($this->decode($id));
         }, 'find trashed record by ID');
     }
 
@@ -236,7 +249,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
     {
         return $this->handleError(function () use ($id) {
             return $this->model->onlyTrashed()
-                ->findOrFail($id)
+                ->findOrFail($this->decode($id))
                 ->restore();
         }, 'restore record');
     }
@@ -252,7 +265,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
         return $this->handleError(function () use ($id) {
             return $this->model
                 ->onlyTrashed()
-                ->findOrFail($id)
+                ->findOrFail($this->decode($id))
                 ->forceDelete();
         }, 'force delete record');
     }
@@ -287,7 +300,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
     {
         return $status !== null ? $status !== 'active' : !$object->is_active;
     }
-    
+
 
     /**
      * List all active records
