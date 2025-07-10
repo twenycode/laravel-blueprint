@@ -27,9 +27,12 @@ trait HashingIds
      */
     protected function getHasher(): Hashids
     {
-        $salt = Config::get('tweny-hashids.connections.main.salt', Config::get('app.key', 'laravel-blueprint'));
-        $minLength = Config::get('tweny-hashids.connections.main.length',24);
-        $alphabet = Config::get('tweny-hashids.connections.main.alphabet', 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890');
+        $connection = Config::get('tweny-blueprint.hashids.default', 'main');
+        $config = Config::get("tweny-blueprint.hashids.connections.{$connection}", []);
+
+        $salt = $config['salt'] ?? Config::get('app.key', 'laravel-blueprint');
+        $minLength = $config['length'] ?? 6;
+        $alphabet = $config['alphabet'] ?? 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
 
         return new Hashids($salt, $minLength, $alphabet);
     }

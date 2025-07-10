@@ -21,13 +21,9 @@ class TwenyLaravelBlueprintServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        // Merge configs with prefixed keys
+        // Merge config with unified configuration
         $this->mergeConfigFrom(
             __DIR__ . '/../config/tweny-blueprint.php', 'tweny-blueprint'
-        );
-
-        $this->mergeConfigFrom(
-            __DIR__ . '/../config/tweny-hashids.php', 'tweny-hashids'
         );
 
         // Register helpers
@@ -43,10 +39,9 @@ class TwenyLaravelBlueprintServiceProvider extends ServiceProvider
     {
         Paginator::useBootstrap();
 
-        // Publish configs
+        // Publish unified config
         $this->publishes([
             __DIR__ . '/../config/tweny-blueprint.php' => config_path('tweny-blueprint.php'),
-            __DIR__ . '/../config/tweny-hashids.php' => config_path('tweny-hashids.php'),
         ], 'tcb-config');
 
         // Register model observers
