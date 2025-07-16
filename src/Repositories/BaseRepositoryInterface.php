@@ -33,6 +33,13 @@ interface BaseRepositoryInterface
     public function getActiveData();
 
     /**
+     * Retrieve all records
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function getInactiveData();
+
+    /**
      * Get all active records as key-value pairs
      *
      * @return \Illuminate\Support\Collection

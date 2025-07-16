@@ -57,6 +57,27 @@ class BaseService implements BaseServiceInterface
     }
 
     /**
+     * Get all active records
+     */
+    public function getActiveData()
+    {
+        return $this->handleError(function () {
+            return $this->repository->getActiveData();
+        }, 'retrieve all active records');
+    }
+
+    /**
+     * Get all active records
+     */
+    public function getInactiveData()
+    {
+        return $this->handleError(function () {
+            return $this->repository->getInactiveData();
+        }, 'retrieve all active records');
+    }
+    
+
+    /**
      * Retrieve all records with relationships
      *
      * @return \Illuminate\Database\Eloquent\Collection
