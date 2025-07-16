@@ -320,6 +320,23 @@ abstract class BaseRepository implements BaseRepositoryInterface
     }
 
     /**
+     * List all Inactive records
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function getInactiveData()
+    {
+        return $this->handleError(function () {
+            $cacheKey = $this->generateCacheKey('inactive');
+            return $this->remember($cacheKey, function () {
+                return $this->model
+                    ->where('is_active', 0)
+                    ->get();
+            });
+        }, 'list all active records');
+    }
+
+    /**
      * Pluck all active records as name-id pairs
      *
      * @return \Illuminate\Support\Collection

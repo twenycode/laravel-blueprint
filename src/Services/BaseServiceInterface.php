@@ -24,10 +24,18 @@ interface BaseServiceInterface
 
     /**
      * Retrieve all records with relationships
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
      */
     public function getAllWithRelationships();
+
+    /**
+     * Get all active records
+     */
+    public function getActiveData();
+
+    /**
+     * Get all active records
+     */
+    public function getInactiveData();
 
     /**
      * Get all active records with relationships
