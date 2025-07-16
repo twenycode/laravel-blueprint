@@ -75,7 +75,7 @@ class BaseService implements BaseServiceInterface
             return $this->repository->getInactiveData();
         }, 'retrieve all active records');
     }
-    
+
 
     /**
      * Retrieve all records with relationships
