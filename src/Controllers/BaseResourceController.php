@@ -86,7 +86,7 @@ abstract class BaseResourceController extends Controller
         $this->authorizeAction('view');
 
         return $this->handleError(function () use ($id) {
-            $item = $this->layer->findById($id);
+            $item = $this->layer->show($id);
             $variableName = $this->getResourceVariableName();
             return view($this->getView('show'), [$variableName => $item]);
         }, "show with ID {$id}");
