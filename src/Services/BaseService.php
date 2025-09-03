@@ -3,9 +3,8 @@
 namespace TwenyCode\LaravelBlueprint\Services;
 
 use TwenyCode\LaravelBlueprint\Repositories\BaseRepositoryInterface;
+use TwenyCode\LaravelBlueprint\Traits\DatabaseTransactionTrait;
 use TwenyCode\LaravelBlueprint\Traits\ErrorHandlerTrait;
-use Illuminate\Support\Facades\DB;
-use Closure;
 
 /**
  * Base Service Implementation
@@ -13,7 +12,7 @@ use Closure;
  */
 class BaseService implements BaseServiceInterface
 {
-    use ErrorHandlerTrait;
+    use ErrorHandlerTrait, DatabaseTransactionTrait;
 
     /** @var string The service name for logging */
     protected $serviceName;
@@ -269,17 +268,5 @@ class BaseService implements BaseServiceInterface
             $object = $this->repository->findById($modelId);
             return $this->repository->updateActiveStatus($object, $status);
         }, 'change of status.');
-    }
-
-    /**
-     * Execute a Closure within a database transaction.
-     *
-     * @param \Closure $callback The callback to execute within the transaction
-     * @param int $attempts Number of attempts
-     * @return mixed The result of the callback
-     */
-    protected function transaction(Closure $callback, int $attempts = 1)
-    {
-        return DB::transaction($callback, $attempts);
     }
 }
