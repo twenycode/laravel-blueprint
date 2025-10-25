@@ -458,9 +458,9 @@ class YourApiController extends BaseApiResourceController
 ### Form Requests
 
 ```php
-use TwenyCode\LaravelBlueprint\Http\Requests\BaseAuthFormRequest;
+use TwenyCode\LaravelBlueprint\Http\Requests\AuthorizedFormRequest;
 
-class YourRequest extends BaseAuthFormRequest
+class YourRequest extends AuthorizedFormRequest
 {
     public function authorize()
     {
