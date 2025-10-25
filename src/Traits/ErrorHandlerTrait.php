@@ -12,13 +12,6 @@ trait ErrorHandlerTrait
 {
     /**
      * Execute a function and handle any exceptions that occur.
-     *
-     * @param callable $function The function to execute
-     * @param string $context Description of the operation
-     * @param mixed $request Optional request data for form errors
-     * @param string $msg Default error message
-     * @return mixed
-     * @throws Exception If error handling fails
      */
     protected function handleError(callable $function, string $context, mixed $request = null, string $msg = 'Something went wrong')
     {
@@ -36,9 +29,6 @@ trait ErrorHandlerTrait
 
     /**
      * Check if the exception is a specific type that needs special handling.
-     *
-     * @param Exception $e The exception to check
-     * @return bool
      */
     protected function isSpecificException(Exception $e): bool
     {
@@ -59,12 +49,6 @@ trait ErrorHandlerTrait
 
     /**
      * Handle specific custom exceptions.
-     *
-     * @param Exception $e The exception
-     * @param string $context Description of the operation
-     * @param mixed $request Optional request data
-     * @return mixed
-     * @throws Exception If handling fails
      */
     private function     handleSpecificException(Exception $e, string $context, $request = null)
     {
@@ -83,13 +67,6 @@ trait ErrorHandlerTrait
 
     /**
      * Handle generic exceptions.
-     *
-     * @param Exception $e The exception
-     * @param string $context Description of the operation
-     * @param string $msg Default error message
-     * @param mixed $request Optional request data
-     * @return mixed
-     * @throws Exception If handling fails
      */
     private function handleGenericException(Exception $e, string $context, string $msg, $request = null)
     {
@@ -108,11 +85,10 @@ trait ErrorHandlerTrait
 
     /**
      * Get the class name for logging purposes.
-     *
-     * @return string
      */
     private function getClassName(): string
     {
         return $this->controllerName ?? $this->modelName ?? $this->serviceName ?? class_basename($this);
     }
+
 }
