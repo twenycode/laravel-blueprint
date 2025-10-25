@@ -7,7 +7,7 @@ use Illuminate\Foundation\Http\FormRequest;
 /**
  * Base Form Request with permission checking
  */
-class BaseFormRequest extends FormRequest
+class BaseAuthFormRequest extends FormRequest
 {
     /**
      * Check if the user has the required permission
