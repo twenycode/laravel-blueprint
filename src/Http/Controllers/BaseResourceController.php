@@ -1,23 +1,24 @@
 <?php
 
-namespace TwenyCode\LaravelBlueprint\Controllers;
+namespace TwenyCode\LaravelBlueprint\Http\Controllers;
 
-use TwenyCode\LaravelBlueprint\Traits\ResponseJsonTrait;
-use TwenyCode\LaravelBlueprint\Helpers\TextHelper;
-use Illuminate\Support\Facades\Gate;
-use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Gate;
+use TwenyCode\LaravelBlueprint\Helpers\TextHelper;
+use TwenyCode\LaravelBlueprint\Traits\ErrorHandlingTrait;
+use TwenyCode\LaravelBlueprint\Traits\HandleResponseTrait;
 
 /**
- * Base API Resource Controller with standard CRUD operations
- * Handles JSON responses for RESTful APIs
+ * Base Resource Controller with standard CRUD operations
+ * Handles web-based views and redirects
  */
-abstract class BaseApiResourceController extends Controller
+abstract class BaseResourceController extends Controller
 {
-    use ResponseJsonTrait;
+    use ErrorHandlingTrait, HandleResponseTrait;
 
     protected string $controllerName;
     protected $layer;
+    protected string $baseViewName;
     protected string $baseRouteName;
     protected string $resourceVariable;
     protected bool $checkAuthorization = true;
@@ -26,144 +27,155 @@ abstract class BaseApiResourceController extends Controller
     /**
      * Display listing of resources
      */
-    public function index(): JsonResponse
+    public function index()
     {
         $this->authorize('view');
 
         return $this->handleError(function () {
-            return $this->successResponse(
-                [$this->pluralizeVariable() => $this->getItems()],
-                "Retrieved {$this->controllerName} list"
-            );
+            $items = $this->getItems();
+            return view($this->baseViewName . '.index', [
+                $this->pluralizeVariable() => $items
+            ]);
         }, 'retrieve all resources');
+    }
+
+    /**
+     * Show create form
+     */
+    public function create()
+    {
+        $this->authorize('create');
+
+        return $this->handleError(function () {
+            return view($this->baseViewName . '.create', [
+                $this->resourceVariable => $this->layer->model()
+            ]);
+        }, 'show create form');
     }
 
     /**
      * Store newly created resource
      */
-    public function store($request): JsonResponse
+    public function store($request)
     {
         $this->authorize('create');
 
         return $this->handleError(function () use ($request) {
-            $item = $this->layer->create($request->validated());
-            return $this->successResponse(
-                [$this->resourceVariable => $item],
-                "New {$this->controllerName} created",
-                201
-            );
+            $this->layer->create($request->validated());
+            return $this->successRoute($this->baseRouteName . '.index',
+                "New {$this->controllerName} added");
         }, 'create new', $request->input());
     }
 
     /**
      * Display specified resource
      */
-    public function show($id): JsonResponse
+    public function show($id)
     {
         $this->authorize('view');
 
         return $this->handleError(function () use ($id) {
-            return $this->successResponse(
-                [$this->resourceVariable => $this->layer->find($id)],
-                "{$this->controllerName} retrieved"
-            );
+            return view($this->baseViewName . '.show', [
+                $this->resourceVariable => $this->layer->find($id)
+            ]);
         }, "show with ID {$id}");
+    }
+
+    /**
+     * Show edit form
+     */
+    public function edit($id)
+    {
+        $this->authorize('update');
+
+        return $this->handleError(function () use ($id) {
+            return view($this->baseViewName . '.edit', [
+                $this->resourceVariable => $this->layer->find($id)
+            ]);
+        }, "edit with ID {$id}");
     }
 
     /**
      * Update specified resource
      */
-    public function update($request, $id): JsonResponse
+    public function update($request, $id)
     {
         $this->authorize('update');
 
         return $this->handleError(function () use ($id, $request) {
-            $item = $this->layer->update($id, $request->validated());
-            return $this->successResponse(
-                [$this->resourceVariable => $item],
-                "{$this->controllerName} updated"
-            );
+            $this->layer->update($id, $request->validated());
+            return $this->successRoute($this->baseRouteName . '.index',
+                "{$this->controllerName} updated");
         }, 'update', $request->input());
     }
 
     /**
      * Delete specified resource
      */
-    public function destroy($id): JsonResponse
+    public function destroy($id)
     {
         $this->authorize('delete');
 
         return $this->handleError(function () use ($id) {
             $this->layer->delete($id);
-            return $this->successResponse(
-                null,
-                "{$this->controllerName} deleted",
-                204
-            );
+            return $this->successRoute($this->baseRouteName . '.index',
+                "{$this->controllerName} deleted");
         }, "delete with ID {$id}");
     }
 
     /**
      * Display trashed resources
      */
-    public function trashed(): JsonResponse
+    public function trashed()
     {
         $this->authorize('delete');
 
         return $this->handleError(function () {
-            return $this->successResponse(
-                [$this->pluralizeVariable() => $this->layer->trashed()],
-                "Retrieved trashed {$this->controllerName} list"
-            );
+            return view($this->baseViewName . '.trash', [
+                $this->pluralizeVariable() => $this->layer->trashed()
+            ]);
         }, 'get all soft deleted records');
     }
 
     /**
      * Restore soft deleted resource
      */
-    public function restore($id): JsonResponse
+    public function restore($id)
     {
         $this->authorize('delete');
 
         return $this->handleError(function () use ($id) {
             $this->layer->restore($id);
-            return $this->successResponse(
-                null,
-                "{$this->controllerName} restored"
-            );
+            return $this->successRoute($this->baseRouteName . '.trash',
+                "{$this->controllerName} restored");
         }, "restore record with ID {$id}");
     }
 
     /**
      * Permanently delete resource
      */
-    public function forceDelete($id): JsonResponse
+    public function forceDelete($id)
     {
         $this->authorize('delete');
 
         return $this->handleError(function () use ($id) {
             $this->layer->forceDelete($id);
-            return $this->successResponse(
-                null,
-                "{$this->controllerName} permanently deleted",
-                204
-            );
+            return $this->successRoute($this->baseRouteName . '.trash',
+                "{$this->controllerName} permanently deleted");
         }, "permanent delete record with ID {$id}");
     }
 
     /**
      * Toggle active status of resource
      */
-    public function toggleActive($id): JsonResponse
+    public function toggleActive($id)
     {
         $this->authorize('update');
 
         return $this->handleError(function () use ($id) {
             $status = $this->layer->updateActiveStatus($id);
-            return $this->successResponse(
-                null,
-                "{$this->controllerName} has been {$status}"
-            );
+            return $this->successRoute($this->baseRouteName . '.index',
+                "{$this->controllerName} has been {$status}");
         }, 'change the is_active column status');
     }
 

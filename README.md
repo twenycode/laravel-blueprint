@@ -196,14 +196,13 @@ class UserService extends BaseService
 ```
 
 #### 4. Create a Controller
+
 ```php
 <?php
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\UserStoreRequest;
-use App\Services\UserService;
-use TwenyCode\LaravelBlueprint\Controllers\BaseResourceController;
+use App\Http\Requests\UserStoreRequest;use App\Services\UserService;use TwenyCode\LaravelBlueprint\Http\Controllers\BaseResourceController;
 
 class UserController extends BaseResourceController
 {
@@ -420,8 +419,9 @@ class YourService extends BaseService
 ### Controllers
 
 #### BaseResourceController (Web)
+
 ```php
-use TwenyCode\LaravelBlueprint\Controllers\BaseResourceController;
+use TwenyCode\LaravelBlueprint\Http\Controllers\BaseResourceController;
 
 class YourController extends BaseResourceController
 {
@@ -438,8 +438,9 @@ class YourController extends BaseResourceController
 ```
 
 #### BaseApiResourceController (API)
+
 ```php
-use TwenyCode\LaravelBlueprint\Controllers\BaseApiResourceController;
+use TwenyCode\LaravelBlueprint\Http\Controllers\BaseApiResourceController;
 
 class YourApiController extends BaseApiResourceController
 {
