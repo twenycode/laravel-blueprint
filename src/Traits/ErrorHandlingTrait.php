@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Log;
 /**
  * Trait for standardized error handling across application components
  */
-trait ErrorHandlerTrait
+trait ErrorHandlingTrait
 {
     /**
      * Execute a function and handle any exceptions that occur.

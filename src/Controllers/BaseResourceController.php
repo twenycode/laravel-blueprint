@@ -2,8 +2,8 @@
 
 namespace TwenyCode\LaravelBlueprint\Controllers;
 
-use TwenyCode\LaravelBlueprint\Traits\ErrorHandlerTrait;
-use TwenyCode\LaravelBlueprint\Traits\ResponseHandlerTrait;
+use TwenyCode\LaravelBlueprint\Traits\ErrorHandlingTrait;
+use TwenyCode\LaravelBlueprint\Traits\HandleResponseTrait;
 use TwenyCode\LaravelBlueprint\Helpers\TextHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -14,7 +14,7 @@ use App\Http\Controllers\Controller;
  */
 abstract class BaseResourceController extends Controller
 {
-    use ErrorHandlerTrait, ResponseHandlerTrait;
+    use ErrorHandlingTrait, HandleResponseTrait;
 
     /** The controller's display name */
     protected $controllerName;

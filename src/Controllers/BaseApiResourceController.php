@@ -2,7 +2,7 @@
 
 namespace TwenyCode\LaravelBlueprint\Controllers;
 
-use TwenyCode\LaravelBlueprint\Traits\JsonResponseTrait;
+use TwenyCode\LaravelBlueprint\Traits\ResponseJsonTrait;
 use TwenyCode\LaravelBlueprint\Helpers\TextHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -15,7 +15,7 @@ use App\Http\Controllers\Controller;
  */
 abstract class BaseApiResourceController extends Controller
 {
-    use JsonResponseTrait;
+    use ResponseJsonTrait;
 
     /** The controller's display name */
     protected $controllerName;

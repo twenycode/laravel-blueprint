@@ -558,11 +558,11 @@ $userRepository->forgetCache(['all', 'active']);
 ### Event Caching
 
 ```php
-use TwenyCode\LaravelBlueprint\Traits\EventCacheTrait;
+use TwenyCode\LaravelBlueprint\Traits\CachingTrait;
 
 class EventRepository extends BaseRepository
 {
-    use EventCacheTrait;
+    use CachingTrait;
     
     public function getUpcomingEvents()
     {

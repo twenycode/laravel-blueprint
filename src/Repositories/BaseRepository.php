@@ -3,7 +3,7 @@
 namespace TwenyCode\LaravelBlueprint\Repositories;
 
 use Illuminate\Database\Eloquent\Model;
-use TwenyCode\LaravelBlueprint\Traits\ErrorHandlerTrait;
+use TwenyCode\LaravelBlueprint\Traits\ErrorHandlingTrait;
 use TwenyCode\LaravelBlueprint\Traits\RepositoryCacheTrait;
 use Illuminate\Support\Str;
 
@@ -14,7 +14,7 @@ use Illuminate\Support\Str;
  */
 abstract class BaseRepository implements BaseRepositoryInterface
 {
-    use ErrorHandlerTrait, RepositoryCacheTrait;
+    use ErrorHandlingTrait, RepositoryCacheTrait;
 
     protected Model $model;
     protected string $modelName;

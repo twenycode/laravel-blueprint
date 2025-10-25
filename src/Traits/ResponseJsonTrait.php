@@ -7,7 +7,7 @@ use Illuminate\Http\JsonResponse;
 /**
  * Trait for handling JSON responses in API controllers
  */
-trait JsonResponseTrait
+trait ResponseJsonTrait
 {
     /**
      * Return a success JSON response

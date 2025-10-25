@@ -7,14 +7,14 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Database\Eloquent\Collection;
 use TwenyCode\LaravelBlueprint\Repositories\BaseRepositoryInterface;
 use TwenyCode\LaravelBlueprint\Traits\DatabaseTransactionTrait;
-use TwenyCode\LaravelBlueprint\Traits\ErrorHandlerTrait;
+use TwenyCode\LaravelBlueprint\Traits\ErrorHandlingTrait;
 
 /**
  * Base Service class that handles business logic and delegates to repository
  */
 class BaseService implements BaseServiceInterface
 {
-    use ErrorHandlerTrait, DatabaseTransactionTrait;
+    use ErrorHandlingTrait, DatabaseTransactionTrait;
 
     /**
      * Repository instance for data access operations
