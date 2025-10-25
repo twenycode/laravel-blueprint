@@ -2,271 +2,270 @@
 
 namespace TwenyCode\LaravelBlueprint\Services;
 
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Database\Eloquent\Collection;
 use TwenyCode\LaravelBlueprint\Repositories\BaseRepositoryInterface;
 use TwenyCode\LaravelBlueprint\Traits\DatabaseTransactionTrait;
 use TwenyCode\LaravelBlueprint\Traits\ErrorHandlerTrait;
 
 /**
- * Base Service Implementation
- * Service layer for handling business logic and transaction management
+ * Base Service class that handles business logic and delegates to repository
  */
 class BaseService implements BaseServiceInterface
 {
     use ErrorHandlerTrait, DatabaseTransactionTrait;
 
-    /** @var string The service name for logging */
-    protected $serviceName;
-
-    /** @var BaseRepositoryInterface The repository implementation */
-    protected $repository;
+    /**
+     * Repository instance for data access operations
+     */
+    protected BaseRepositoryInterface $repository;
 
     /**
-     * Constructor
-     *
-     * @param BaseRepositoryInterface|null $repository The repository implementation
+     * Service class name used for logging
      */
-    public function __construct($repository = null)
+    protected string $serviceName;
+
+    /**
+     * Constructor - requires repository to be injected
+     */
+    public function __construct(BaseRepositoryInterface $repository)
     {
         $this->repository = $repository;
         $this->serviceName = class_basename($this);
     }
 
+    // ====================================
+    // Core CRUD Operations
+    // ====================================
+
     /**
-     * Get model instance
-     *
-     * @return \Illuminate\Database\Eloquent\Model
+     * Create a new record with the provided data
      */
-    public function model()
+    public function create(array $data): Model
     {
-        return $this->handleError(function () {
-            return $this->repository->model();
-        }, 'get model object');
+        return $this->handleError(function () use ($data) {
+            return $this->repository->create($data);
+        }, 'create record');
     }
 
     /**
-     * Retrieve all records
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * Find a record by ID - returns null if not found
      */
-    public function getAll()
+    public function find($id): ?Model
+    {
+        return $this->handleError(function () use ($id) {
+            return $this->repository->find($id);
+        }, 'find record by ID');
+    }
+
+    /**
+     * Update an existing record and return the fresh instance
+     */
+    public function update($id, array $data): Model
+    {
+        return $this->handleError(function () use ($id, $data) {
+            return $this->repository->update($id, $data);
+        }, 'update record');
+    }
+
+    /**
+     * Delete a record (soft delete if model supports it)
+     */
+    public function delete($id): bool
+    {
+        return $this->handleError(function () use ($id) {
+            return $this->repository->delete($id);
+        }, 'delete record');
+    }
+
+    // ====================================
+    // Retrieval Operations
+    // ====================================
+
+    /**
+     * Get all records from the database
+     */
+    public function all(): Collection
     {
         return $this->handleError(function () {
-            return $this->repository->getAll();
+            return $this->repository->all();
         }, 'retrieve all records');
     }
 
     /**
-     * Get all active records
+     * Get all records with relationships eager loaded
      */
-    public function getActiveData()
+    public function allWithRelations(): Collection
     {
         return $this->handleError(function () {
-            return $this->repository->getActiveData();
-        }, 'retrieve all active records');
-    }
-
-    /**
-     * Get all active records
-     */
-    public function getInactiveData()
-    {
-        return $this->handleError(function () {
-            return $this->repository->getInactiveData();
-        }, 'retrieve all active records');
-    }
-
-
-    /**
-     * Retrieve all records with relationships
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
-     */
-    public function getAllWithRelationships()
-    {
-        return $this->handleError(function () {
-            return $this->repository->getAllWithRelationships();
+            return $this->repository->allWithRelations();
         }, 'retrieve all records with relationships');
     }
 
     /**
-     * Get all active records with relationships
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * Get only active records (is_active = true)
      */
-    public function getActiveDataWithRelations()
+    public function active(): Collection
     {
         return $this->handleError(function () {
-            return $this->repository->getActiveDataWithRelations();
-        }, 'retrieve all active records with relationships');
+            return $this->repository->active();
+        }, 'retrieve active records');
     }
 
     /**
-     * Get all inactive records with relationships
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * Get active records with relationships loaded
      */
-    public function getInactiveDataWithRelations()
+    public function activeWithRelations(): Collection
     {
         return $this->handleError(function () {
-            return $this->repository->getInactiveDataWithRelations();
-        }, 'retrieve all inactive records with relationships');
+            return $this->repository->activeWithRelations();
+        }, 'retrieve active records with relationships');
     }
 
     /**
-     * Create a new record
-     *
-     * @param array $data Data to create
-     * @return \Illuminate\Database\Eloquent\Model
+     * Get only inactive records (is_active = false)
      */
-    public function create(array $data)
+    public function inactive(): Collection
     {
-        return $this->handleError(function () use ($data) {
-            return $this->repository->create($data);
-        }, 'create a new record');
+        return $this->handleError(function () {
+            return $this->repository->inactive();
+        }, 'retrieve inactive records');
     }
 
     /**
-     * Show record by ID
-     *
-     * @param mixed $id ID to find
-     * @return \Illuminate\Database\Eloquent\Model
+     * Get inactive records with relationships loaded
      */
-    public function show($id)
+    public function inactiveWithRelations(): Collection
     {
-        return $this->handleError(function () use ($id) {
-            return $this->repository->show($id);
-        }, 'show a record by ID');
+        return $this->handleError(function () {
+            return $this->repository->inactiveWithRelations();
+        }, 'retrieve inactive records with relationships');
     }
 
     /**
-     * Find a record by ID
-     *
-     * @param mixed $id ID to find
-     * @return \Illuminate\Database\Eloquent\Model
+     * Get paginated records with latest-first ordering
      */
-    public function findById($id)
+    public function paginate(int $perPage = 15): Paginator
     {
-        return $this->handleError(function () use ($id) {
-            return $this->repository->findById($id);
-        }, 'find a record by ID');
+        return $this->handleError(function () use ($perPage) {
+            return $this->repository->paginate($perPage);
+        }, 'paginate records');
     }
 
     /**
-     * Update an existing record
-     *
-     * @param mixed $id ID to update
-     * @param array $data Data to update
-     * @return \Illuminate\Database\Eloquent\Model
+     * Get soft-deleted records only
      */
-    public function update($id, array $data)
-    {
-        return $this->handleError(function () use ($id, $data) {
-            return $this->repository->update($id, $data);
-        }, 'update existing record');
-    }
-
-    /**
-     * Delete a record
-     *
-     * @param mixed $id ID to delete
-     * @return bool
-     */
-    public function delete($id)
-    {
-        return $this->handleError(function () use ($id) {
-            return $this->repository->delete($id);
-        }, 'delete existing record');
-    }
-
-    /**
-     * Get soft-deleted records
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
-     */
-    public function trashed()
+    public function trashed(): Collection
     {
         return $this->handleError(function () {
             return $this->repository->trashed();
-        }, 'view trashed objects');
+        }, 'retrieve trashed records');
+    }
+
+    // ====================================
+    // Status Management
+    // ====================================
+
+    /**
+     * Toggle is_active status - switches between true and false
+     */
+    public function toggleStatus($id): bool
+    {
+        return $this->handleError(function () use ($id) {
+            $model = $this->repository->find($id);
+            return $this->repository->toggleStatus($model);
+        }, 'toggle active status');
     }
 
     /**
-     * Restore a soft-deleted record
-     *
-     * @param mixed $id ID to restore
-     * @return bool
+     * Activate a record - set is_active to true
      */
-    public function restore($id)
+    public function activate($id): bool
+    {
+        return $this->handleError(function () use ($id) {
+            $model = $this->repository->find($id);
+            return $model->activate();
+        }, 'activate record');
+    }
+
+    /**
+     * Deactivate a record - set is_active to false
+     */
+    public function deactivate($id): bool
+    {
+        return $this->handleError(function () use ($id) {
+            $model = $this->repository->find($id);
+            return $model->deactivate();
+        }, 'deactivate record');
+    }
+
+    // ====================================
+    // Soft Delete Operations
+    // ====================================
+
+    /**
+     * Restore a soft-deleted record back to active
+     */
+    public function restore($id): bool
     {
         return $this->handleError(function () use ($id) {
             return $this->repository->restore($id);
-        }, 'restore deleted object');
+        }, 'restore trashed record');
     }
 
     /**
-     * Permanently delete a soft-deleted record
-     *
-     * @param mixed $id ID to permanently delete
-     * @return bool
+     * Permanently delete a soft-deleted record from database
      */
-    public function forceDelete($id)
+    public function forceDelete($id): bool
     {
         return $this->handleError(function () use ($id) {
             return $this->repository->forceDelete($id);
-        }, 'permanent delete object');
+        }, 'permanently delete record');
+    }
+
+    // ====================================
+    // Utility Operations
+    // ====================================
+
+    /**
+     * Pluck active records as key-value pairs
+     */
+    public function pluckActive(string $value = 'name', string $key = 'id')
+    {
+        return $this->handleError(function () use ($value, $key) {
+            return $this->repository->pluckActive($value, $key);
+        }, 'pluck active records');
     }
 
     /**
-     * Search records by query string
-     *
-     * @param string $searchTerm Term to search for
-     * @return \Illuminate\Database\Eloquent\Collection
+     * Delete all records matching a specific column value
      */
-    public function searchByQuery(string $searchTerm)
+    public function deleteBy(string $column, $value): bool
     {
-        return $this->handleError(function () use ($searchTerm) {
-            return $this->repository->searchByQuery($searchTerm);
-        }, 'search query');
+        return $this->handleError(function () use ($column, $value) {
+            return $this->repository->deleteBy($column, $value);
+        }, 'delete records by criteria');
     }
 
     /**
-     * Get filtered information
-     *
-     * @param string $filterTerm Term to filter by
-     * @return \Illuminate\Database\Eloquent\Collection
+     * Get records ordered by a specific column and direction
      */
-    public function getInformationBy(string $filterTerm)
+    public function orderBy(string $column, string $direction = 'asc'): Collection
     {
-        return $this->handleError(function () use ($filterTerm) {
-            return $this->repository->getInformationBy($filterTerm);
-        }, 'get filtered information');
+        return $this->handleError(function () use ($column, $direction) {
+            return $this->repository->orderBy($column, $direction);
+        }, 'retrieve ordered records');
     }
 
     /**
-     * Live search for records
-     *
-     * @param string $searchTerm Term to search for
-     * @return \Illuminate\Database\Eloquent\Collection
+     * Get the underlying model instance for advanced queries
      */
-    public function liveSearch(string $searchTerm)
+    public function model(): Model
     {
-        return $this->handleError(function () use ($searchTerm) {
-            return $this->repository->liveSearch($searchTerm);
-        }, 'live search query');
+        return $this->handleError(function () {
+            return $this->repository->model();
+        }, 'get model instance');
     }
 
-    /**
-     * Update the active status of a record
-     *
-     * @param mixed $modelId ID of the model to update
-     * @param mixed $status Optional explicit status to set
-     * @return string Status message
-     */
-    public function updateActiveStatus($modelId, $status = null)
-    {
-        return $this->handleError(function () use ($modelId, $status) {
-            $object = $this->repository->findById($modelId);
-            return $this->repository->updateActiveStatus($object, $status);
-        }, 'change of status.');
-    }
 }

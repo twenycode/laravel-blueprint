@@ -321,5 +321,5 @@ abstract class BaseRepository implements BaseRepositoryInterface
                 ->get();
         }, 'retrieve ordered records');
     }
-    
+
 }
