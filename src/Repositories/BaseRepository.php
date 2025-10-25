@@ -2,43 +2,25 @@
 
 namespace TwenyCode\LaravelBlueprint\Repositories;
 
+use Illuminate\Database\Eloquent\Model;
 use TwenyCode\LaravelBlueprint\Traits\ErrorHandlerTrait;
 use TwenyCode\LaravelBlueprint\Traits\RepositoryCacheTrait;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use Exception;
 
 /**
  * Base Repository Class
  *
- * A standardized implementation of the repository pattern that provides:
- * - Dynamic relationship loading
- * - Advanced filtering and searching capabilities
- * - Caching with user-specific contexts
- * - Error handling and logging
+ * Provides standardized CRUD operations with caching support.
  */
 abstract class BaseRepository implements BaseRepositoryInterface
 {
     use ErrorHandlerTrait, RepositoryCacheTrait;
 
-    /** @var Model The model instance for this repository */
-    protected $model;
-
-    /** @var string The model name for logging and cache keys */
-    protected $modelName;
-
-    /** @var string The cache key prefix based on model name */
+    protected Model $model;
+    protected string $modelName;
     protected string $cacheKeyPrefix;
-
-    /** @var array Default relationships to eager load */
     protected array $relationships = [];
 
-    /**
-     * Constructor
-     *
-     * @param Model $model The model to use
-     */
     public function __construct(Model $model)
     {
         $this->model = $model;
@@ -47,39 +29,49 @@ abstract class BaseRepository implements BaseRepositoryInterface
     }
 
     /**
-     * Decode model ID
-     *
-     * @param mixed $id ID to decode
-     * @return mixed
+     * Get the model instance
      */
-    public function decode($id)
+    public function model()
+    {
+        return $this->model;
+    }
+
+    /**
+     * Decode a hashed/encoded ID
+     */
+    public function decodeId($id)
     {
         return $this->handleError(function () use ($id) {
-            return $this->model->decode($id);
+            if (method_exists($this->model, 'decodeId')) {
+                return $this->model->decodeId($id);
+            }
+
+            return $id;
         }, 'decode ID');
     }
 
     /**
-     * Get model instance
-     *
-     * @return Model
+     * Encode an ID to hash/obfuscate it
      */
-    public function model()
+    public function encodeId($id)
     {
-        return $this->handleError(function () {
-            return $this->model;
-        }, 'get model object');
+        return $this->handleError(function () use ($id) {
+            if (method_exists($this->model, 'encodeId')) {
+                return $this->model->encodeId($id);
+            }
+
+            return $id;
+        }, 'encode ID');
     }
 
     /**
-     * Retrieve all records
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * Get all records
      */
-    public function getAll()
+    public function all()
     {
         return $this->handleError(function () {
             $cacheKey = $this->generateCacheKey('all');
+
             return $this->remember($cacheKey, function () {
                 return $this->model->get();
             });
@@ -87,351 +79,247 @@ abstract class BaseRepository implements BaseRepositoryInterface
     }
 
     /**
-     * Retrieve all records with relationships
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * Get all records with relationships
      */
-    public function getAllWithRelationships()
+    public function allWithRelations()
     {
         return $this->handleError(function () {
-            $cacheKey = $this->generateCacheKey('with_relationship');
+            $cacheKey = $this->generateCacheKey('all_with_relations');
+
             return $this->remember($cacheKey, function () {
-                return $this->model
-                    ->with($this->relationships)
-                    ->get();
+                return $this->model->with($this->relationships)->get();
             });
         }, 'retrieve all records with relationships');
     }
 
     /**
-     * Retrieve all active records with relationships
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * Get active records
      */
-    public function getActiveDataWithRelations()
+    public function active()
     {
         return $this->handleError(function () {
-            $cacheKey = $this->generateCacheKey('active_with_relationship');
+            $cacheKey = $this->generateCacheKey('active');
+
             return $this->remember($cacheKey, function () {
-                return $this->model
-                    ->where('is_active', 1)
-                    ->with($this->relationships)
-                    ->get();
+                return $this->model->where('is_active', true)->get();
             });
-        }, 'retrieve all active records with relationships');
+        }, 'retrieve active records');
     }
 
     /**
-     * Retrieve all inactive records with relationships
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * Get active records with relationships
      */
-    public function getInactiveDataWithRelations()
+    public function activeWithRelations()
     {
         return $this->handleError(function () {
-            $cacheKey = $this->generateCacheKey('inactive_with_relationship');
+            $cacheKey = $this->generateCacheKey('active_with_relations');
+
             return $this->remember($cacheKey, function () {
                 return $this->model
-                    ->where('is_active', 0)
+                    ->where('is_active', true)
                     ->with($this->relationships)
                     ->get();
             });
-        }, 'retrieve all inactive records with relationships');
+        }, 'retrieve active records with relationships');
     }
 
     /**
-     * Create new record
-     *
-     * @param array $data Data to create
-     * @return Model
+     * Get inactive records
+     */
+    public function inactive()
+    {
+        return $this->handleError(function () {
+            $cacheKey = $this->generateCacheKey('inactive');
+
+            return $this->remember($cacheKey, function () {
+                return $this->model->where('is_active', false)->get();
+            });
+        }, 'retrieve inactive records');
+    }
+
+    /**
+     * Get inactive records with relationships
+     */
+    public function inactiveWithRelations()
+    {
+        return $this->handleError(function () {
+            $cacheKey = $this->generateCacheKey('inactive_with_relations');
+
+            return $this->remember($cacheKey, function () {
+                return $this->model
+                    ->where('is_active', false)
+                    ->with($this->relationships)
+                    ->get();
+            });
+        }, 'retrieve inactive records with relationships');
+    }
+
+    /**
+     * Pluck active records as key-value pairs
+     */
+    public function pluckActive(string $value = 'name', string $key = 'id')
+    {
+        return $this->handleError(function () use ($value, $key) {
+            $cacheKey = $this->generateCacheKey('pluck_active', $value, $key);
+
+            return $this->remember($cacheKey, function () use ($value, $key) {
+                return $this->model
+                    ->where('is_active', true)
+                    ->pluck($value, $key);
+            });
+        }, 'pluck active records');
+    }
+
+    /**
+     * Find a record by ID
+     */
+    public function find($id)
+    {
+        return $this->handleError(function () use ($id) {
+            return $this->model
+                ->with($this->relationships)
+                ->findOrFail($this->decodeId($id));
+        }, 'find record by ID');
+    }
+
+    /**
+     * Paginate records
+     */
+    public function paginate(int $perPage = 15)
+    {
+        return $this->handleError(function () use ($perPage) {
+            $maxPerPage = config('tweny-blueprint.pagination.max_per_page', 100);
+            $perPage = min($perPage, $maxPerPage);
+
+            return $this->model
+                ->with($this->relationships)
+                ->latest()
+                ->paginate($perPage);
+        }, 'paginate records');
+    }
+
+    /**
+     * Create a new record
      */
     public function create(array $data)
     {
         return $this->handleError(function () use ($data) {
-            // Cache will be cleared automatically via model observer
             return $this->model->create($data);
-        }, 'create new record');
+        }, 'create record');
     }
 
     /**
-     * Show record by ID (alias for findById)
-     *
-     * @param mixed $id ID to find
-     * @return Model
-     */
-    public function show($id)
-    {
-        return $this->findById($id);
-    }
-
-    /**
-     * Find record by ID
-     *
-     * @param mixed $id ID to find
-     * @return Model
-     */
-    public function findById($id)
-    {
-        return $this->handleError(function () use ($id) {
-            return $this->model->findOrFail($this->decode($id));
-        }, 'find a record by ID');
-    }
-
-    /**
-     * Update existing record
-     *
-     * @param mixed $id ID to update
-     * @param array $data Data to update
-     * @return Model
+     * Update a record
      */
     public function update($id, array $data)
     {
         return $this->handleError(function () use ($id, $data) {
-            $model = $this->findById($id);
+            $model = $this->find($id);
             $model->update($data);
-            // Cache will be cleared automatically via model observer
-            return $model;
+
+            return $model->fresh($this->relationships);
         }, 'update record');
     }
 
     /**
-     * Delete record
-     *
-     * @param mixed $id ID to delete
-     * @return bool
+     * Delete a record
      */
     public function delete($id)
     {
         return $this->handleError(function () use ($id) {
-            $model = $this->findById($id);
-            $result = $model->delete();
-            // Cache will be cleared automatically via model observer
-            return $result;
+            $model = $this->find($id);
+
+            return $model->delete();
         }, 'delete record');
     }
 
     /**
-     * Get soft-deleted records
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * Toggle active status
+     */
+    public function toggleStatus(Model $model)
+    {
+        return $this->handleError(function () use ($model) {
+            $newStatus = !$model->is_active;
+            $model->update(['is_active' => $newStatus]);
+
+            return $newStatus;
+        }, 'toggle active status');
+    }
+
+    /**
+     * Get trashed records
      */
     public function trashed()
     {
         return $this->handleError(function () {
             $cacheKey = $this->generateCacheKey('trashed');
+
             return $this->remember($cacheKey, function () {
                 return $this->model->onlyTrashed()->get();
             });
-        }, 'get trashed records');
+        }, 'retrieve trashed records');
     }
 
     /**
-     * Find soft-deleted record by ID
-     *
-     * @param mixed $id ID to find
-     * @return Model
+     * Find a trashed record by ID
      */
-    public function findTrashedById($id)
+    public function findTrashed($id)
     {
         return $this->handleError(function () use ($id) {
-            return $this->model->onlyTrashed()
-                ->findOrFail($this->decode($id));
+            return $this->model
+                ->onlyTrashed()
+                ->findOrFail($this->decodeId($id));
         }, 'find trashed record by ID');
     }
 
     /**
-     * Restore soft-deleted record
-     *
-     * @param mixed $id ID to restore
-     * @return bool
+     * Restore a trashed record
      */
-    public function restore($id): bool
+    public function restore($id)
     {
         return $this->handleError(function () use ($id) {
-            return $this->model->onlyTrashed()
-                ->findOrFail($this->decode($id))
+            return $this->model
+                ->onlyTrashed()
+                ->findOrFail($this->decodeId($id))
                 ->restore();
         }, 'restore record');
     }
 
     /**
-     * Permanently delete record
-     *
-     * @param mixed $id ID to permanently delete
-     * @return bool
+     * Permanently delete a record
      */
     public function forceDelete($id)
     {
         return $this->handleError(function () use ($id) {
             return $this->model
                 ->onlyTrashed()
-                ->findOrFail($this->decode($id))
+                ->findOrFail($this->decodeId($id))
                 ->forceDelete();
         }, 'force delete record');
     }
 
     /**
-     * Toggle the active status of a model
-     *
-     * @param Model $object The model to update
-     * @param mixed $status Optional explicit status to set
-     * @return string Status message
+     * Delete records by column value
      */
-    public function updateActiveStatus($object, $status = null)
+    public function deleteBy(string $column, $value)
     {
-        return $this->handleError(
-            function () use ($object, $status) {
-                $object->is_active = $this->getNewActiveState($object, $status);
-                $object->save();
-                return $object->is_active ? 'activated' : 'deactivated';
-            },
-            'change the active status'
-        );
-    }
-
-    /**
-     * Get the new active state based on input status
-     *
-     * @param Model $object The model being updated
-     * @param mixed $status The explicit status to set, or null to toggle
-     * @return bool The new active state
-     */
-    private function getNewActiveState($object, $status = null): bool
-    {
-        return $status !== null ? $status !== 'active' : !$object->is_active;
-    }
-
-
-    /**
-     * List all active records
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
-     */
-    public function getActiveData()
-    {
-        return $this->handleError(function () {
-            $cacheKey = $this->generateCacheKey('active');
-            return $this->remember($cacheKey, function () {
-                return $this->model
-                    ->where('is_active', 1)
-                    ->get();
-            });
-        }, 'list all active records');
-    }
-
-    /**
-     * List all Inactive records
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
-     */
-    public function getInactiveData()
-    {
-        return $this->handleError(function () {
-            $cacheKey = $this->generateCacheKey('inactive');
-            return $this->remember($cacheKey, function () {
-                return $this->model
-                    ->where('is_active', 0)
-                    ->get();
-            });
-        }, 'list all active records');
-    }
-
-    /**
-     * Pluck all active records as name-id pairs
-     *
-     * @return \Illuminate\Support\Collection
-     */
-    public function pluckActiveData()
-    {
-        return $this->handleError(function () {
-            $cacheKey = $this->generateCacheKey('pluck_active');
-            return $this->remember($cacheKey, function () {
-                return $this->model
-                    ->where('is_active', 1)
-                    ->pluck('name', 'id');
-            });
-        }, 'pluck all active records');
-    }
-
-    /**
-     * Paginate records with relationships
-     *
-     * @param int $perPage Number of records per page
-     * @return \Illuminate\Pagination\LengthAwarePaginator
-     */
-    public function paginateWithRelationships($perPage = 25)
-    {
-        return $this->handleError(function () use ($perPage) {
+        return $this->handleError(function () use ($column, $value) {
             return $this->model
-                ->with($this->relationships)
-                ->orderBy('created_at', 'desc')
-                ->paginate($perPage);
-        }, 'paginate all data with relationships');
-    }
-
-    /**
-     * Search records by query string
-     *
-     * @param string $searchTerm Term to search for
-     * @return \Illuminate\Database\Eloquent\Collection
-     */
-    public function searchByQuery(string $searchTerm)
-    {
-        // Implemented in child classes
-        return collect();
-    }
-
-    /**
-     * Live search for records
-     *
-     * @param string $searchTerm Term to search for
-     * @return \Illuminate\Database\Eloquent\Collection
-     */
-    public function liveSearch(string $searchTerm)
-    {
-        // Implemented in child classes
-        return collect();
-    }
-
-    /**
-     * Get filtered information
-     *
-     * @param string $filterTerm Term to filter by
-     * @return \Illuminate\Database\Eloquent\Collection
-     */
-    public function getInformationBy(string $filterTerm)
-    {
-        // Implemented in child classes
-        return collect();
-    }
-
-    /**
-     * Delete all a record on where condition
-     */
-    public function deleteWhere($column,$value)
-    {
-        return $this->handleError(function () use ($column,$value) {
-            return $this->model
-                ->where($column,$value)
+                ->where($column, $value)
                 ->delete();
-        }, 'delete a record on where condition in repository');
+        }, 'delete records by criteria');
     }
 
     /**
-     * Get all the record and order by specific column
+     * Order records by column
      */
-    public function orderBy($column,$value)
+    public function orderBy(string $column, string $direction = 'asc')
     {
-        return $this->handleError(function () use ($column,$value) {
-            if(!is_null($value) && !is_null($column)) {
-                return $this->model
-                    ->orderBy($column,$value)
-                    ->get();
-            }
-            return null;
-        }, 'get all the record and order by specific column');
+        return $this->handleError(function () use ($column, $direction) {
+            return $this->model
+                ->orderBy($column, $direction)
+                ->get();
+        }, 'retrieve ordered records');
     }
-
-
-
+    
 }

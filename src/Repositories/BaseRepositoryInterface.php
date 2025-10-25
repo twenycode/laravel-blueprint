@@ -6,200 +6,118 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Base Repository Interface
- * Defines the contract for all repository implementations
+ *
+ * Standard contract for repository pattern implementation.
  */
 interface BaseRepositoryInterface
 {
     /**
      * Get the model instance
-     *
-     * @return Model
      */
     public function model();
 
     /**
-     * Decode a hashed model ID
-     *
-     * @param mixed $id ID to decode
-     * @return mixed
+     * Decode a hashed/encoded ID
      */
-    public function decode($id);
+    public function decodeId($id);
 
     /**
-     * Retrieve all records
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * Encode an ID to hash/obfuscate it
      */
-    public function getActiveData();
+    public function encodeId($id);
 
     /**
-     * Retrieve all records
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * Get all records
      */
-    public function getInactiveData();
+    public function all();
 
     /**
-     * Get all active records as key-value pairs
-     *
-     * @return \Illuminate\Support\Collection
+     * Get all records with relationships
      */
-    public function pluckActiveData();
+    public function allWithRelations();
 
     /**
-     * Paginate records with relationships
-     *
-     * @param int $perPage Number of records per page
-     * @return \Illuminate\Pagination\LengthAwarePaginator
+     * Get active records
      */
-    public function paginateWithRelationships(int $perPage);
+    public function active();
 
     /**
-     * Search records by query string
-     *
-     * @param string $searchTerm Term to search for
-     * @return \Illuminate\Database\Eloquent\Collection
+     * Get active records with relationships
      */
-    public function searchByQuery(string $searchTerm);
+    public function activeWithRelations();
 
     /**
-     * Live search for records
-     *
-     * @param string $searchTerm Term to search for
-     * @return \Illuminate\Database\Eloquent\Collection
+     * Get inactive records
      */
-    public function liveSearch(string $searchTerm);
+    public function inactive();
 
     /**
-     * Get filtered information
-     *
-     * @param string $filterTerm Term to filter by
-     * @return \Illuminate\Database\Eloquent\Collection
+     * Get inactive records with relationships
      */
-    public function getInformationBy(string $filterTerm);
-
+    public function inactiveWithRelations();
 
     /**
-     * Retrieve all records
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * Pluck active records as key-value pairs
      */
-    public function getAll();
-
-    /**
-     * Retrieve all records with relationships
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
-     */
-    public function getAllWithRelationships();
-
-    /**
-     * Get all active records with relationships
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
-     */
-    public function getActiveDataWithRelations();
-
-    /**
-     * Get all inactive records with relationships
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
-     */
-    public function getInactiveDataWithRelations();
+    public function pluckActive(string $value = 'name', string $key = 'id');
 
     /**
      * Create a new record
-     *
-     * @param array $data Data to create
-     * @return Model
      */
     public function create(array $data);
 
     /**
-     * Show a record by ID (alias for findById)
-     *
-     * @param mixed $id ID to find
-     * @return Model
-     */
-    public function show($id);
-
-    /**
      * Find a record by ID
-     *
-     * @param mixed $id ID to find
-     * @return Model
      */
-    public function findById($id);
+    public function find($id);
 
     /**
-     * Update an existing record
-     *
-     * @param mixed $id ID to update
-     * @param array $data Data to update
-     * @return Model
+     * Update a record
      */
     public function update($id, array $data);
 
     /**
      * Delete a record
-     *
-     * @param mixed $id ID to delete
-     * @return bool
      */
     public function delete($id);
 
     /**
-     * Get soft-deleted records
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * Paginate records
+     */
+    public function paginate(int $perPage = 15);
+
+    /**
+     * Toggle active status
+     */
+    public function toggleStatus(Model $model);
+
+    /**
+     * Get trashed records
      */
     public function trashed();
 
     /**
-     * Find a soft-deleted record by ID
-     *
-     * @param mixed $id ID to find
-     * @return Model
+     * Find a trashed record by ID
      */
-    public function findTrashedById($id);
+    public function findTrashed($id);
 
     /**
-     * Restore a soft-deleted record
-     *
-     * @param mixed $id ID to restore
-     * @return bool
+     * Restore a trashed record
      */
     public function restore($id);
 
     /**
-     * Permanently delete a soft-deleted record
-     *
-     * @param mixed $id ID to permanently delete
-     * @return bool
+     * Permanently delete a record
      */
     public function forceDelete($id);
 
     /**
-     * Update the active status of a record
-     *
-     * @param Model $object The model to update
-     * @param mixed $status Optional explicit status to set
-     * @return string Status message
+     * Delete records by column value
      */
-    public function updateActiveStatus($object, $status = null);
+    public function deleteBy(string $column, $value);
 
     /**
-     * delete all records based on column and value
+     * Order records by column
      */
-    public function deleteWhere($column, $value);
-
-
-    /**
-     * Get all the data and order by specific column
-     */
-    public function orderBy($column, $value);
-
-
-
-
+    public function orderBy(string $column, string $direction = 'asc');
 }

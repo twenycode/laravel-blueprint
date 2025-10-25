@@ -2,74 +2,26 @@
 
 namespace TwenyCode\LaravelBlueprint\Repositories;
 
+/**
+ * Base UUID Repository
+ *
+ * Extends base repository for UUID-based models.
+ */
 class BaseUuidRepository extends BaseRepository
 {
-
     /**
-     * Override the decode method since we're using UUIDs directly
+     * Decode a UUID (no decoding needed)
      */
-    public function decode($id)
+    public function decodeId($id)
     {
-        // Since we're using UUIDs, we don't need to decode
-        // Just return the UUID string as-is
         return $id;
     }
 
     /**
-     * Override the encode method since we're using UUIDs directly
+     * Encode a UUID (no encoding needed)
      */
-    protected function encode($id)
+    public function encodeId($id)
     {
-        // Since we're using UUIDs, we don't need to encode
-        // Just return the UUID string as-is
         return $id;
     }
-
-    /**
-     * Find record by ID without decoding
-     */
-    public function findById($id)
-    {
-        return $this->handleError(function () use ($id) {
-            return $this->model
-                ->with($this->relationships)
-                ->findOrFail($id); // Use $id directly, no decoding needed
-        }, 'find a record by ID');
-    }
-
-    /**
-     * Update record by ID without decoding
-     */
-    public function update($id, array $data)
-    {
-        return $this->handleError(function () use ($id, $data) {
-            $record = $this->model->findOrFail($id); // Use $id directly
-            $record->update($data);
-            return $record->fresh();
-        }, 'update record');
-    }
-
-    /**
-     * Delete record by ID without decoding
-     */
-    public function delete($id)
-    {
-        return $this->handleError(function () use ($id) {
-            $record = $this->model->findOrFail($id); // Use $id directly
-            return $record->delete();
-        }, 'delete record');
-    }
-
-    /**
-     * Show record by ID without decoding
-     */
-    public function show($id)
-    {
-        return $this->handleError(function () use ($id) {
-            return $this->model
-                ->with($this->relationships)
-                ->findOrFail($id); // Use $id directly
-        }, 'show record');
-    }
-
 }
