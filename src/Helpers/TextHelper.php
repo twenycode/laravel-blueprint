@@ -8,9 +8,6 @@ class TextHelper
 {
     /**
      * Remove underscores from a word.
-     *
-     * @param string $word The word to process
-     * @return string
      */
     public static function removeUnderscore($word)
     {
@@ -19,9 +16,6 @@ class TextHelper
 
     /**
      * Add underscores to a word.
-     *
-     * @param string $word The word to process
-     * @return string
      */
     public static function addUnderscore($word)
     {
@@ -30,10 +24,6 @@ class TextHelper
 
     /**
      * Remove a character and capitalize the word.
-     *
-     * @param string $char The character to remove
-     * @param string $word The word to process
-     * @return string
      */
     public static function removeCharAndCapitalize($char, $word)
     {
@@ -42,10 +32,6 @@ class TextHelper
 
     /**
      * Replace a character in a string.
-     *
-     * @param string $char The character to replace
-     * @param string $word The word to process
-     * @return string
      */
     public static function replaceString($char, $word)
     {
@@ -54,11 +40,6 @@ class TextHelper
 
     /**
      * Return singular or plural suffix based on value.
-     *
-     * @param int $value The count
-     * @param string $singular Singular suffix
-     * @param string $plural Plural suffix
-     * @return string
      */
     public static function plural($value, $singular = '', $plural = 's')
     {
@@ -70,9 +51,6 @@ class TextHelper
 
     /**
      * Convert string to snake case.
-     *
-     * @param string $string The string to convert
-     * @return string
      */
     public static function snake($string)
     {
@@ -81,9 +59,6 @@ class TextHelper
 
     /**
      * Convert string to headline case.
-     *
-     * @param string $string The string to convert
-     * @return string
      */
     public static function headline($string)
     {
@@ -92,11 +67,6 @@ class TextHelper
 
     /**
      * Trim text to a specific number of words.
-     *
-     * @param string $text The text to trim
-     * @param int $wordCount Number of words to keep
-     * @param string $ellipsis Ellipsis to append
-     * @return string
      */
     public static function trimWords($text, $wordCount, $ellipsis = '...')
     {
@@ -128,11 +98,6 @@ class TextHelper
 
     /**
      * Trim HTML text to a specific number of words while preserving HTML structure.
-     *
-     * @param string $html The HTML to trim
-     * @param int $wordCount Number of words to keep
-     * @param string $ellipsis Ellipsis to append
-     * @return string
      */
     public static function trimHtmlWords($html, $wordCount, $ellipsis = '...')
     {
@@ -206,9 +171,6 @@ class TextHelper
 
     /**
      * Converts a variable name to its plural form
-     *
-     * @param string $singular The singular variable name
-     * @return string The pluralized variable name
      */
     public static function pluralize($singular)
     {
@@ -284,9 +246,6 @@ class TextHelper
 
     /**
      * Function to pluralize a camelCase or snake_case variable name
-     *
-     * @param string $variableName The singular variable name
-     * @return string The pluralized variable name
      */
     public static function pluralizeVariableName($variableName)
     {

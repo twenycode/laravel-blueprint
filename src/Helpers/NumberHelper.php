@@ -6,10 +6,6 @@ class NumberHelper
 {
     /**
      * Convert file size to human-readable format.
-     *
-     * @param float $bytes The size in bytes
-     * @param int $decimals The number of decimals to use
-     * @return string
      */
     public static function formatFileSize(float $bytes, int $decimals = 2): string
     {
@@ -25,10 +21,6 @@ class NumberHelper
 
     /**
      * Format number with decimal places.
-     *
-     * @param float $number The number to format
-     * @param int $int Number of decimal places
-     * @return string
      */
     public static function formatCurrencyDecimal($number, $int = 2): string
     {
@@ -37,9 +29,6 @@ class NumberHelper
 
     /**
      * Format number without decimal places.
-     *
-     * @param float $number The number to format
-     * @return string
      */
     public static function formatCurrency($number): string
     {
@@ -48,10 +37,6 @@ class NumberHelper
 
     /**
      * Format money with currency symbol.
-     *
-     * @param float $amount The amount to format
-     * @param object|null $currency Currency object with symbol property
-     * @return string
      */
     public static function formatMoney($amount, $currency = null)
     {
@@ -61,10 +46,6 @@ class NumberHelper
 
     /**
      * Calculate percentage of an amount.
-     *
-     * @param float $percent The percentage
-     * @param float|null $amount The amount to calculate percentage from
-     * @return float
      */
     public static function calculatePercentNumber($percent, $amount = null)
     {

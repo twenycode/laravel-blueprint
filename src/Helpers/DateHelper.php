@@ -9,10 +9,6 @@ class DateHelper
 {
     /**
      * Convert a date and time string from one format to another.
-     *
-     * @param string|null $date1 The date to convert
-     * @param string $date2 The target format
-     * @return string|null
      */
     public static function dateTimeConversion($date1, $date2 = 'd M Y H:i:s')
     {
@@ -24,10 +20,6 @@ class DateHelper
 
     /**
      * Calculate number of days between two dates.
-     *
-     * @param string $date1 Start date
-     * @param string $date2 End date
-     * @return float
      */
     public static function numberOfDays($date1, $date2): float
     {
@@ -39,9 +31,6 @@ class DateHelper
 
     /**
      * Calculate the age of a record in days.
-     *
-     * @param string|null $date The date to calculate from
-     * @return int|null
      */
     public static function calculateAge($date)
     {
@@ -56,10 +45,6 @@ class DateHelper
 
     /**
      * Get difference between two dates in human-readable format.
-     *
-     * @param string $start_date Start date
-     * @param string $end_date End date
-     * @return string
      */
     public static function dateDifference($start_date, $end_date): string
     {
@@ -76,9 +61,6 @@ class DateHelper
 
     /**
      * Calculate number of days remaining from now to a date.
-     *
-     * @param string $date The target date
-     * @return float
      */
     public static function calculateRemainingDays($date): float
     {
@@ -88,10 +70,6 @@ class DateHelper
 
     /**
      * Format date range in a readable format.
-     *
-     * @param string $startDate Start date
-     * @param string $endDate End date
-     * @return string
      */
     public static function formatDateDuration($startDate, $endDate)
     {
@@ -114,9 +92,6 @@ class DateHelper
 
     /**
      * Format time as a human-readable "time ago" string.
-     *
-     * @param string $timestamp The timestamp to format
-     * @return string
      */
     public static function formatTimeAgo($timestamp)
     {
