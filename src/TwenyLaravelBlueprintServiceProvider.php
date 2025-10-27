@@ -72,7 +72,7 @@ class TwenyLaravelBlueprintServiceProvider extends ServiceProvider
     protected function registerModelObservers()
     {
         // Get models to observe from config
-        $models = config('tweny-blueprint.observers.enabled', []);
+        $models = config('tweny-blueprint.observers.models', []);
 
         foreach ($models as $modelClass) {
             if (class_exists($modelClass)) {

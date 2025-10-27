@@ -15,6 +15,6 @@ class AuthorizedFormRequest extends FormRequest
             return false;
         }
 
-        return auth()->user()->can($permission) || auth()->user()->hasRole('superAdmin');
+        return auth()->user()->can($permission) || auth()->user()->hasRole(config('tweny-blueprint.authorization.super_admin_role'));
     }
 }

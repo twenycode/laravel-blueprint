@@ -211,7 +211,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
     /**
      * Bulk create records
      */
-    public function createMany(array $records): Collection
+    public function createMany(array $records)
     {
         return $this->handleError(function () use ($records) {
             return $this->model->insert($records);
