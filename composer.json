@@ -12,6 +12,7 @@
   "minimum-stability": "stable",
   "require": {
     "php": "^8.2",
+    "laravel/framework": "^11.0|^12.0",
     "vinkla/hashids": "^13.0",
     "realrashid/sweet-alert": "^7.3",
     "twenycode/blade-morph": "^1.3",
