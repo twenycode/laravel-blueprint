@@ -133,10 +133,16 @@ trait RepositoryCacheTrait
      */
     protected function clearCacheKeys(): void
     {
-        $keys = ['all', 'active', 'inactive', 'trashed',
-            'all_with_relationships', 'active_with_relationships',
-            'inactive_with_relationships', 'pluck_active'];
-
+        $keys = [
+            'all',
+            'all_with_relations',
+            'active',
+            'active_with_relations',
+            'inactive',
+            'inactive_with_relations',
+            'trashed',
+            'pluck_active'
+        ];
         foreach ($keys as $key) {
             $cacheKey = $this->generateCacheKey($key);
             Cache::forget($cacheKey);
