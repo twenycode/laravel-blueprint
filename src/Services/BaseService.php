@@ -42,7 +42,7 @@ class BaseService implements BaseServiceInterface
     /**
      * Create a new record with the provided data
      */
-    public function create(array $data): Model
+    public function create(array $data)
     {
         return $this->handleError(function () use ($data) {
             return $this->repository->create($data);
@@ -52,7 +52,7 @@ class BaseService implements BaseServiceInterface
     /**
      * Find a record by ID - returns null if not found
      */
-    public function find($id): ?Model
+    public function find($id)
     {
         return $this->handleError(function () use ($id) {
             return $this->repository->find($id);
@@ -62,7 +62,7 @@ class BaseService implements BaseServiceInterface
     /**
      * Update an existing record and return the fresh instance
      */
-    public function update($id, array $data): Model
+    public function update($id, array $data)
     {
         return $this->handleError(function () use ($id, $data) {
             return $this->repository->update($id, $data);
@@ -72,7 +72,7 @@ class BaseService implements BaseServiceInterface
     /**
      * Delete a record (soft delete if model supports it)
      */
-    public function delete($id): bool
+    public function delete($id)
     {
         return $this->handleError(function () use ($id) {
             return $this->repository->delete($id);
@@ -86,7 +86,7 @@ class BaseService implements BaseServiceInterface
     /**
      * Get all records from the database
      */
-    public function all(): Collection
+    public function all()
     {
         return $this->handleError(function () {
             return $this->repository->all();
@@ -96,7 +96,7 @@ class BaseService implements BaseServiceInterface
     /**
      * Get all records with relationships eager loaded
      */
-    public function allWithRelations(): Collection
+    public function allWithRelations()
     {
         return $this->handleError(function () {
             return $this->repository->allWithRelations();
@@ -106,7 +106,7 @@ class BaseService implements BaseServiceInterface
     /**
      * Get only active records (is_active = true)
      */
-    public function active(): Collection
+    public function active()
     {
         return $this->handleError(function () {
             return $this->repository->active();
@@ -116,7 +116,7 @@ class BaseService implements BaseServiceInterface
     /**
      * Get active records with relationships loaded
      */
-    public function activeWithRelations(): Collection
+    public function activeWithRelations()
     {
         return $this->handleError(function () {
             return $this->repository->activeWithRelations();
@@ -126,7 +126,7 @@ class BaseService implements BaseServiceInterface
     /**
      * Get only inactive records (is_active = false)
      */
-    public function inactive(): Collection
+    public function inactive()
     {
         return $this->handleError(function () {
             return $this->repository->inactive();
@@ -136,7 +136,7 @@ class BaseService implements BaseServiceInterface
     /**
      * Get inactive records with relationships loaded
      */
-    public function inactiveWithRelations(): Collection
+    public function inactiveWithRelations()
     {
         return $this->handleError(function () {
             return $this->repository->inactiveWithRelations();
@@ -146,7 +146,7 @@ class BaseService implements BaseServiceInterface
     /**
      * Get paginated records with latest-first ordering
      */
-    public function paginate(int $perPage = 15): Paginator
+    public function paginate(int $perPage = 15)
     {
         return $this->handleError(function () use ($perPage) {
             return $this->repository->paginate($perPage);
@@ -156,7 +156,7 @@ class BaseService implements BaseServiceInterface
     /**
      * Get soft-deleted records only
      */
-    public function trashed(): Collection
+    public function trashed()
     {
         return $this->handleError(function () {
             return $this->repository->trashed();
@@ -170,7 +170,7 @@ class BaseService implements BaseServiceInterface
     /**
      * Toggle is_active status - switches between true and false
      */
-    public function toggleStatus($id): bool
+    public function toggleStatus($id)
     {
         return $this->handleError(function () use ($id) {
             $model = $this->repository->find($id);
@@ -181,7 +181,7 @@ class BaseService implements BaseServiceInterface
     /**
      * Activate a record - set is_active to true
      */
-    public function activate($id): bool
+    public function activate($id)
     {
         return $this->handleError(function () use ($id) {
             $model = $this->repository->find($id);
@@ -192,7 +192,7 @@ class BaseService implements BaseServiceInterface
     /**
      * Deactivate a record - set is_active to false
      */
-    public function deactivate($id): bool
+    public function deactivate($id)
     {
         return $this->handleError(function () use ($id) {
             $model = $this->repository->find($id);
@@ -207,7 +207,7 @@ class BaseService implements BaseServiceInterface
     /**
      * Restore a soft-deleted record back to active
      */
-    public function restore($id): bool
+    public function restore($id)
     {
         return $this->handleError(function () use ($id) {
             return $this->repository->restore($id);
@@ -217,7 +217,7 @@ class BaseService implements BaseServiceInterface
     /**
      * Permanently delete a soft-deleted record from database
      */
-    public function forceDelete($id): bool
+    public function forceDelete($id)
     {
         return $this->handleError(function () use ($id) {
             return $this->repository->forceDelete($id);
@@ -241,7 +241,7 @@ class BaseService implements BaseServiceInterface
     /**
      * Delete all records matching a specific column value
      */
-    public function deleteBy(string $column, $value): bool
+    public function deleteBy(string $column, $value)
     {
         return $this->handleError(function () use ($column, $value) {
             return $this->repository->deleteBy($column, $value);
@@ -251,7 +251,7 @@ class BaseService implements BaseServiceInterface
     /**
      * Get records ordered by a specific column and direction
      */
-    public function orderBy(string $column, string $direction = 'asc'): Collection
+    public function orderBy(string $column, string $direction = 'asc')
     {
         return $this->handleError(function () use ($column, $direction) {
             return $this->repository->orderBy($column, $direction);
@@ -261,7 +261,7 @@ class BaseService implements BaseServiceInterface
     /**
      * Get the underlying model instance for advanced queries
      */
-    public function model(): Model
+    public function model()
     {
         return $this->handleError(function () {
             return $this->repository->model();
