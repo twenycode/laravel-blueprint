@@ -77,4 +77,23 @@ return [
         // Maximum items per page
         'max_per_page' => 100,
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | HasIds
+    |--------------------------------------------------------------------------
+    |
+    | Default pagination settings for repositories.
+    |
+    */
+    'hashids' => [
+        'default' => 'main',
+        'connections' => [
+            'main' => [
+                'salt' => env('HASHIDS_SALT', env('APP_KEY')),
+                'length' => 6,
+                'alphabet' => 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890',
+            ],
+        ],
+    ],
 ];

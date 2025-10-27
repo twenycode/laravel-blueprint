@@ -209,6 +209,16 @@ abstract class BaseRepository implements BaseRepositoryInterface
     }
 
     /**
+     * Bulk create records
+     */
+    public function createMany(array $records): Collection
+    {
+        return $this->handleError(function () use ($records) {
+            return $this->model->insert($records);
+        }, 'bulk create records');
+    }
+
+    /**
      * Update a record
      */
     public function update($id, array $data)
@@ -320,6 +330,40 @@ abstract class BaseRepository implements BaseRepositoryInterface
                 ->orderBy($column, $direction)
                 ->get();
         }, 'retrieve ordered records');
+    }
+
+    /**
+     * Get query builder for custom queries
+     */
+    public function query()
+    {
+        return $this->model->newQuery();
+    }
+
+    /**
+     * Find by multiple IDs
+     */
+    public function findMany(array $ids)
+    {
+        return $this->handleError(function () use ($ids) {
+            return $this->model->findMany($ids);
+        }, 'find multiple records');
+    }
+
+    /**
+     * Search records
+     */
+    public function search(string $term, array $columns = ['name'])
+    {
+        return $this->handleError(function () use ($term, $columns) {
+            $query = $this->model->newQuery();
+
+            foreach ($columns as $column) {
+                $query->orWhere($column, 'LIKE', "%{$term}%");
+            }
+
+            return $query->get();
+        }, 'search records');
     }
 
 }

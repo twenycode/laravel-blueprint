@@ -67,6 +67,11 @@ interface BaseRepositoryInterface
     public function create(array $data);
 
     /**
+     * Bulk create records
+     */
+    public function createMany(array $records);
+
+    /**
      * Find a record by ID
      */
     public function find($id);
@@ -120,4 +125,21 @@ interface BaseRepositoryInterface
      * Order records by column
      */
     public function orderBy(string $column, string $direction = 'asc');
+
+    /**
+     * Get query builder for custom queries
+     */
+    public function query();
+
+    /**
+     * Find by multiple IDs
+     */
+    public function findMany(array $ids);
+
+    /**
+     * Search records
+     */
+    public function search(string $term, array $columns = ['name']);
+
+
 }

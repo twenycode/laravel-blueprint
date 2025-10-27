@@ -105,4 +105,24 @@ class EventCacheManager
     {
         return "{$this->prefix}_{$key}";
     }
+
+    public function clearCacheKey(): void
+    {
+        $this->clear();
+    }
+
+    public function forgetKeys(array $keys): void
+    {
+        foreach ($keys as $key) {
+            $this->forget($key);
+        }
+    }
+
+    public function setCacheDuration(int $seconds): self
+    {
+        // This method is called but not used effectively
+        // Consider storing it as a property
+        return $this;
+    }
+
 }

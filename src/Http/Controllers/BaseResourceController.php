@@ -173,9 +173,9 @@ abstract class BaseResourceController extends Controller
         $this->authorize('update');
 
         return $this->handleError(function () use ($id) {
-            $status = $this->layer->updateActiveStatus($id);
+            $newStatus = $this->toggleStatus($id);
             return $this->successRoute($this->baseRouteName . '.index',
-                "{$this->controllerName} has been {$status}");
+                "{$this->controllerName} has been {$newStatus}");
         }, 'change the is_active column status');
     }
 
