@@ -3,122 +3,78 @@
 return [
     /*
     |--------------------------------------------------------------------------
-    | Core Package Configuration
-    |--------------------------------------------------------------------------
-    |
-    | Configuration settings for the TwenyCode LaravelBlueprint package.
-    |
-    */
-
-    /*
-    |--------------------------------------------------------------------------
-    | Blade Directive Configuration
-    |--------------------------------------------------------------------------
-    */
-
-    // Super admin role name used in blade directives
-    'super_admin_role' => 'superAdmin',
-
-    /*
-    |--------------------------------------------------------------------------
     | Cache Configuration
     |--------------------------------------------------------------------------
+    |
+    | Configure automatic caching behavior for repositories.
+    | Requires Redis or Memcached for tag-based cache invalidation.
+    |
     */
 
-    // Enable model cache observers
-    'enable_cache_observers' => true,
+    'cache' => [
+        // Enable automatic caching in repositories
+        'enabled' => env('BLUEPRINT_CACHE_ENABLED', true),
 
-    // Common cache keys used for repositories
-    'cache_keys' => [
-        'all','with_relationship', 'active_with_relationship', 'inactive_with_relationship',
-        'trashed', 'paginated','active','pluck_active'
+        // Cache duration in seconds (default: 1 hour)
+        'ttl' => env('BLUEPRINT_CACHE_TTL', 3600),
+
+        // Cache driver (must support tags: redis, memcached)
+        'driver' => env('CACHE_DRIVER', 'redis'),
     ],
-
-    // Default cache duration in minutes
-    'cache_duration' => 1440, // 24 hours
 
     /*
     |--------------------------------------------------------------------------
-    | HashIds Configuration
+    | Model Observers
     |--------------------------------------------------------------------------
     |
-    | Configuration for ID hashing and obfuscation.
-    | Used when working with hashed integer IDs instead of UUIDs.
+    | Automatically clear cache when models are created, updated, or deleted.
+    | Register your models here to enable automatic cache invalidation.
     |
     */
 
-    'hashids' => [
-        // Default connection name
-        'default' => 'main',
+    'observers' => [
+        // Enable automatic cache clearing
+        'enabled' => env('BLUEPRINT_OBSERVERS_ENABLED', true),
 
-        // Hashids connections
-        'connections' => [
-            'main' => [
-                'salt' => env('HASHIDS_SALT', config('app.key')),
-                'length' => 6,
-                'alphabet' => 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890',
-            ],
-
-            'alternative' => [
-                'salt' => env('HASHIDS_ALT_SALT', 'your-salt-string'),
-                'length' => 8,
-                'alphabet' => 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890',
-            ],
+        // Models to observe for cache invalidation
+        'models' => [
+            // App\Models\User::class,
+            // App\Models\Post::class,
+            // App\Models\Product::class,
         ],
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | Model Classes
+    | Authorization
     |--------------------------------------------------------------------------
     |
-    | Define model class mappings for relationships.
-    | These can be overriden in the application config.
+    | Configure authorization behavior in base controllers.
+    |
     */
 
-    'models' => [
-//        'country' => \App\Models\Country::class,
-//        'address' => \App\Models\Address::class,
-//        'employee' => \App\Models\Employee::class,
-//        'department' => \App\Models\Department::class,
-//        'individual' => \App\Models\Individual::class,
-//        'organization' => \App\Models\Organization::class,
-//        'title' => \App\Models\Title::class,
+    'authorization' => [
+        // Enable authorization checks in controllers
+        'enabled' => env('BLUEPRINT_AUTHORIZATION_ENABLED', true),
+
+        // Super admin role (bypasses all authorization checks)
+        'super_admin_role' => env('BLUEPRINT_SUPER_ADMIN_ROLE', 'superAdmin'),
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | Observable Models
+    | Pagination
     |--------------------------------------------------------------------------
     |
-    | List of models that should be observed by the ModelCacheObserver.
-    | Cache will be automatically cleared for these models when they change.
-    */
-
-    'observable_models' => [
-        // Add model classes to observe here
-        // Example: \App\Models\User::class,
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | User-Specific Cache Models
-    |--------------------------------------------------------------------------
+    | Default pagination settings for repositories.
     |
-    | Models that should use user-specific caching.
-    | Useful for models that have user-specific views or access controls.
     */
 
-    'user_cache_models' => [
-//        'Contract', 'Ticket', 'Task', 'Project', 'LeaveRequest'
+    'pagination' => [
+        // Default items per page
+        'per_page' => env('BLUEPRINT_PER_PAGE', 15),
+
+        // Maximum items per page
+        'max_per_page' => 100,
     ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Authorization Configuration
-    |--------------------------------------------------------------------------
-    */
-
-    // Whether to check authorization by default in controllers
-    'check_authorization' => true,
 ];

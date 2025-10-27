@@ -196,14 +196,13 @@ class UserService extends BaseService
 ```
 
 #### 4. Create a Controller
+
 ```php
 <?php
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\UserStoreRequest;
-use App\Services\UserService;
-use TwenyCode\LaravelBlueprint\Controllers\BaseResourceController;
+use App\Http\Requests\UserStoreRequest;use App\Services\UserService;use TwenyCode\LaravelBlueprint\Http\Controllers\BaseResourceController;
 
 class UserController extends BaseResourceController
 {
@@ -420,8 +419,9 @@ class YourService extends BaseService
 ### Controllers
 
 #### BaseResourceController (Web)
+
 ```php
-use TwenyCode\LaravelBlueprint\Controllers\BaseResourceController;
+use TwenyCode\LaravelBlueprint\Http\Controllers\BaseResourceController;
 
 class YourController extends BaseResourceController
 {
@@ -438,8 +438,9 @@ class YourController extends BaseResourceController
 ```
 
 #### BaseApiResourceController (API)
+
 ```php
-use TwenyCode\LaravelBlueprint\Controllers\BaseApiResourceController;
+use TwenyCode\LaravelBlueprint\Http\Controllers\BaseApiResourceController;
 
 class YourApiController extends BaseApiResourceController
 {
@@ -457,9 +458,9 @@ class YourApiController extends BaseApiResourceController
 ### Form Requests
 
 ```php
-use TwenyCode\LaravelBlueprint\Http\Requests\BaseFormRequest;
+use TwenyCode\LaravelBlueprint\Http\Requests\AuthorizedFormRequest;
 
-class YourRequest extends BaseFormRequest
+class YourRequest extends AuthorizedFormRequest
 {
     public function authorize()
     {
@@ -558,11 +559,11 @@ $userRepository->forgetCache(['all', 'active']);
 ### Event Caching
 
 ```php
-use TwenyCode\LaravelBlueprint\Traits\EventCacheTrait;
+use TwenyCode\LaravelBlueprint\Traits\CachingTrait;
 
 class EventRepository extends BaseRepository
 {
-    use EventCacheTrait;
+    use CachingTrait;
     
     public function getUpcomingEvents()
     {

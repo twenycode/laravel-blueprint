@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Config;
  * Provides methods to encode and decode model IDs for public-facing URLs
  * to prevent sequential ID guessing and enhance security.
  */
-trait HashingIds
+trait HashingIdsTrait
 {
 
     // decode object IDs

@@ -5,7 +5,7 @@ namespace TwenyCode\LaravelBlueprint\Traits;
 /**
  * Trait for handling flash messages and redirects
  */
-trait ResponseHandlerTrait
+trait HandleResponseTrait
 {
     /**
      * Flash message types

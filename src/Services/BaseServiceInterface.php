@@ -2,152 +2,140 @@
 
 namespace TwenyCode\LaravelBlueprint\Services;
 
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Database\Eloquent\Collection;
+
 /**
  * Base Service Interface
- * Defines the contract for all service implementations
+ *
+ * Defines the contract for all service implementations.
+ * Services handle business logic while repositories manage data access.
  */
 interface BaseServiceInterface
 {
-    /**
-     * Get the model instance
-     *
-     * @return \Illuminate\Database\Eloquent\Model
-     */
-    public function model();
-
-    /**
-     * Retrieve all records
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
-     */
-    public function getAll();
-
-    /**
-     * Retrieve all records with relationships
-     */
-    public function getAllWithRelationships();
-
-    /**
-     * Get all active records
-     */
-    public function getActiveData();
-
-    /**
-     * Get all active records
-     */
-    public function getInactiveData();
-
-    /**
-     * Get all active records with relationships
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
-     */
-    public function getActiveDataWithRelations();
-
-    /**
-     * Get all inactive records with relationships
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
-     */
-    public function getInactiveDataWithRelations();
+    // ====================================
+    // Core CRUD Operations
+    // ====================================
 
     /**
      * Create a new record
-     *
-     * @param array $data Data to create
-     * @return \Illuminate\Database\Eloquent\Model
      */
-    public function create(array $data);
-
-    /**
-     * Show a record by ID
-     *
-     * @param mixed $id ID to find
-     * @return \Illuminate\Database\Eloquent\Model
-     */
-    public function show($id);
+    public function create(array $data): Model;
 
     /**
      * Find a record by ID
-     *
-     * @param mixed $id ID to find
-     * @return \Illuminate\Database\Eloquent\Model
      */
-    public function findById($id);
+    public function find($id): ?Model;
 
     /**
-     * Update an existing record
-     *
-     * @param mixed $id ID to update
-     * @param array $data Data to update
-     * @return \Illuminate\Database\Eloquent\Model
+     * Update a record
      */
-    public function update($id, array $data);
+    public function update($id, array $data): Model;
 
     /**
-     * Delete a record
-     *
-     * @param mixed $id ID to delete
-     * @return bool
+     * Delete a record (soft delete)
      */
-    public function delete($id);
+    public function delete($id): bool;
+
+    // ====================================
+    // Retrieval Operations
+    // ====================================
 
     /**
-     * Get soft-deleted records
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * Get all records
      */
-    public function trashed();
+    public function all(): Collection;
 
     /**
-     * Restore a soft-deleted record
-     *
-     * @param mixed $id ID to restore
-     * @return bool
+     * Get all records with relationships
      */
-    public function restore($id);
+    public function allWithRelations(): Collection;
 
     /**
-     * Permanently delete a soft-deleted record
-     *
-     * @param mixed $id ID to permanently delete
-     * @return bool
+     * Get active records
      */
-    public function forceDelete($id);
+    public function active(): Collection;
 
     /**
-     * Update the active status of a record
-     *
-     * @param mixed $modelId ID of the model to update
-     * @param mixed $status Optional explicit status to set
-     * @return string Status message
+     * Get active records with relationships
      */
-    public function updateActiveStatus($modelId, $status = null);
+    public function activeWithRelations(): Collection;
 
     /**
-     * Search records by query string
-     *
-     * @param string $searchTerm Term to search for
-     * @return \Illuminate\Database\Eloquent\Collection
+     * Get inactive records
      */
-    public function searchByQuery(string $searchTerm);
+    public function inactive(): Collection;
 
     /**
-     * Live search for records
-     *
-     * @param string $searchTerm Term to search for
-     * @return \Illuminate\Database\Eloquent\Collection
+     * Get inactive records with relationships
      */
-    public function liveSearch(string $searchTerm);
-
+    public function inactiveWithRelations(): Collection;
 
     /**
-     * Get filtered information
-     *
-     * @param string $filterTerm Term to filter by
-     * @return \Illuminate\Database\Eloquent\Collection
+     * Paginate records
      */
-    public function getInformationBy(string $filterTerm);
+    public function paginate(int $perPage = 15): Paginator;
 
+    /**
+     * Get trashed records
+     */
+    public function trashed(): Collection;
 
+    // ====================================
+    // Status Management
+    // ====================================
+
+    /**
+     * Toggle active status of a record
+     */
+    public function toggleStatus($id): bool;
+
+    /**
+     * Activate a record
+     */
+    public function activate($id): bool;
+
+    /**
+     * Deactivate a record
+     */
+    public function deactivate($id): bool;
+
+    // ====================================
+    // Soft Delete Operations
+    // ====================================
+
+    /**
+     * Restore a trashed record
+     */
+    public function restore($id): bool;
+
+    /**
+     * Permanently delete a record
+     */
+    public function forceDelete($id): bool;
+
+    // ====================================
+    // Utility Operations
+    // ====================================
+
+    /**
+     * Pluck active records as key-value pairs
+     */
+    public function pluckActive(string $value = 'name', string $key = 'id');
+
+    /**
+     * Delete records by column value
+     */
+    public function deleteBy(string $column, $value): bool;
+
+    /**
+     * Get records ordered by column
+     */
+    public function orderBy(string $column, string $direction = 'asc'): Collection;
+
+    /**
+     * Get the underlying model instance
+     */
+    public function model(): Model;
 }

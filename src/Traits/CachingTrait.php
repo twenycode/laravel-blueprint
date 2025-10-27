@@ -8,7 +8,7 @@ use TwenyCode\LaravelBlueprint\Cache\EventCacheManager;
  * Simple Event Cache Trait
  * Works with your existing repository pattern
  */
-trait EventCacheTrait
+trait CachingTrait
 {
     private ?EventCacheManager $eventCacheManager = null;
 
