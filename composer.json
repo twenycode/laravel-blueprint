@@ -13,6 +13,7 @@
   "require": {
     "php": "^8.2",
     "vinkla/hashids": "^13.0",
+    "jenssegers/agent": "^2.6",
     "realrashid/sweet-alert": "^7.3",
     "twenycode/blade-morph": "^1.4",
     "spatie/laravel-activitylog": "^4.10",
