@@ -29,7 +29,7 @@ abstract class BaseResourceController extends Controller
      */
     public function index()
     {
-        $this->authorize('view');
+        $this->authorizeAction('view');
 
         return $this->handleError(function () {
             $items = $this->getItems();
@@ -44,7 +44,7 @@ abstract class BaseResourceController extends Controller
      */
     public function create()
     {
-        $this->authorize('create');
+        $this->authorizeAction('create');
 
         return $this->handleError(function () {
             return view($this->baseViewName . '.create', [
@@ -58,7 +58,7 @@ abstract class BaseResourceController extends Controller
      */
     public function store($request)
     {
-        $this->authorize('create');
+        $this->authorizeAction('create');
 
         return $this->handleError(function () use ($request) {
             $this->layer->create($request->validated());
@@ -72,7 +72,7 @@ abstract class BaseResourceController extends Controller
      */
     public function show($id)
     {
-        $this->authorize('view');
+        $this->authorizeAction('view');
 
         return $this->handleError(function () use ($id) {
             return view($this->baseViewName . '.show', [
@@ -86,7 +86,7 @@ abstract class BaseResourceController extends Controller
      */
     public function edit($id)
     {
-        $this->authorize('update');
+        $this->authorizeAction('update');
 
         return $this->handleError(function () use ($id) {
             return view($this->baseViewName . '.edit', [
@@ -100,7 +100,7 @@ abstract class BaseResourceController extends Controller
      */
     public function update($request, $id)
     {
-        $this->authorize('update');
+        $this->authorizeAction('update');
 
         return $this->handleError(function () use ($id, $request) {
             $this->layer->update($id, $request->validated());
@@ -114,7 +114,7 @@ abstract class BaseResourceController extends Controller
      */
     public function destroy($id)
     {
-        $this->authorize('delete');
+        $this->authorizeAction('delete');
 
         return $this->handleError(function () use ($id) {
             $this->layer->delete($id);
@@ -128,7 +128,7 @@ abstract class BaseResourceController extends Controller
      */
     public function trashed()
     {
-        $this->authorize('delete');
+        $this->authorizeAction('delete');
 
         return $this->handleError(function () {
             return view($this->baseViewName . '.trash', [
@@ -142,7 +142,7 @@ abstract class BaseResourceController extends Controller
      */
     public function restore($id)
     {
-        $this->authorize('delete');
+        $this->authorizeAction('delete');
 
         return $this->handleError(function () use ($id) {
             $this->layer->restore($id);
@@ -156,7 +156,7 @@ abstract class BaseResourceController extends Controller
      */
     public function forceDelete($id)
     {
-        $this->authorize('delete');
+        $this->authorizeAction('delete');
 
         return $this->handleError(function () use ($id) {
             $this->layer->forceDelete($id);
@@ -170,7 +170,7 @@ abstract class BaseResourceController extends Controller
      */
     public function toggleActive($id)
     {
-        $this->authorize('update');
+        $this->authorizeAction('update');
 
         return $this->handleError(function () use ($id) {
             $newStatus = $this->toggleStatus($id);
@@ -182,7 +182,7 @@ abstract class BaseResourceController extends Controller
     /**
      * Authorize an action
      */
-    protected function authorize(string $action, $resource = null): bool
+    public function authorizeAction(string $action, $resource = null): bool
     {
         if (!$this->checkAuthorization) {
             return true;
