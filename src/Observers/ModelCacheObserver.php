@@ -69,17 +69,8 @@ class ModelCacheObserver
     // Format: role:all, role:all_with_relations, etc.
     protected function clearCacheKeys(string $cacheKeyPrefix, string $modelName): void
     {
-        // All cache keys used by BaseRepository
-        $keys = [
-            'all',
-            'all_with_relations',
-            'active',
-            'active_with_relations',
-            'inactive',
-            'inactive_with_relations',
-            'trashed',
-            'pluck_active'
-        ];
+        // Get cache keys from config: default + model-specific
+        $keys = $this->getCacheKeysFromConfig($modelName);
 
         foreach ($keys as $key) {
             // Generate cache key: role:all_with_relations
@@ -95,5 +86,27 @@ class ModelCacheObserver
 
             Log::info("Cache cleared for {$modelName}: {$cacheKey}");
         }
+    }
+
+    // Get all cache keys for this model from config
+    protected function getCacheKeysFromConfig(string $modelName): array
+    {
+        // Get default keys
+        $defaultKeys = config('tweny-blueprint.cache_keys.default', [
+            'all',
+            'all_with_relations',
+            'active',
+            'active_with_relations',
+            'inactive',
+            'inactive_with_relations',
+            'trashed',
+            'pluck_active'
+        ]);
+
+        // Get model-specific keys
+        $modelKeys = config("tweny-blueprint.cache_keys.{$modelName}", []);
+
+        // Merge and return unique keys
+        return array_unique(array_merge($defaultKeys, $modelKeys));
     }
 }
