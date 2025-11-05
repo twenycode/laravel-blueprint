@@ -100,8 +100,19 @@ trait RepositoryCacheTrait
     // Used when cache driver doesn't support tags
     protected function clearCacheKeys(): void
     {
-        // List of all cache keys used by BaseRepository
-        $keys = [
+        // Get cache keys from config: default + model-specific
+        $keys = $this->getCacheKeysFromConfig();
+
+        foreach ($keys as $key) {
+            Cache::forget($this->generateCacheKey($key));
+        }
+    }
+
+    // Get all cache keys for this model from config
+    protected function getCacheKeysFromConfig(): array
+    {
+        // Get default keys
+        $defaultKeys = config('tweny-blueprint.cache_keys.default', [
             'all',
             'all_with_relations',
             'active',
@@ -110,11 +121,13 @@ trait RepositoryCacheTrait
             'inactive_with_relations',
             'trashed',
             'pluck_active'
-        ];
+        ]);
 
-        foreach ($keys as $key) {
-            Cache::forget($this->generateCacheKey($key));
-        }
+        // Get model-specific keys
+        $modelKeys = config("tweny-blueprint.cache_keys.{$this->modelName}", []);
+
+        // Merge and return unique keys
+        return array_unique(array_merge($defaultKeys, $modelKeys));
     }
 
     // Clear cache for specific user (useful when user data changes)
