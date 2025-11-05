@@ -5,48 +5,40 @@ namespace TwenyCode\LaravelBlueprint\Traits;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Auth;
 
-/**
- * Repository caching functionality with user-specific support
- */
 trait RepositoryCacheTrait
 {
-    /**
-     * Models that require user-specific caching
-     * Override this in your repository if needed
-     */
+    // Models that need user-specific caching (e.g., ['Order', 'Invoice'])
     protected array $userSpecificModels = [];
 
-    /**
-     * Remember a value in cache
-     */
+    // Cache data with automatic expiration
+    // Returns cached result or executes callback and caches it
     protected function remember(string $key, \Closure $callback, ?int $ttl = null)
     {
+        // Skip caching if disabled
         if (!config('tweny-blueprint.cache.enabled', true)) {
             return $callback();
         }
 
+        // Use config TTL or default to 1 hour
         $ttl = $ttl ?? config('tweny-blueprint.cache.ttl', 3600);
-
         return Cache::remember($key, $ttl, $callback);
     }
 
-    /**
-     * Generate a cache key with optional user-specific prefix
-     */
+    // Generate cache key with format: role:all_with_relations or user_1:role:all_with_relations
     public function generateCacheKey(...$parts): string
     {
+        // Build key parts: [user_prefix, model_prefix, ...custom_parts]
         $keyParts = array_filter([
             $this->getUserPrefix(),
             $this->cacheKeyPrefix,
             ...$parts
         ]);
 
+        // Join with colons: role:all_with_relations
         return implode(':', $keyParts);
     }
 
-    /**
-     * Get user prefix for cache key if applicable
-     */
+    // Get user prefix for multi-tenant caching (returns user_1, user_2, etc.)
     protected function getUserPrefix(): ?string
     {
         if (!$this->shouldUseUserSpecificCache()) {
@@ -56,55 +48,31 @@ trait RepositoryCacheTrait
         return 'user_' . Auth::id();
     }
 
-    /**
-     * Determine if user-specific caching should be used
-     */
+    // Determine if user-specific caching should be used
+    // Only for logged-in non-admin users with specific models
     protected function shouldUseUserSpecificCache(): bool
     {
-        // Not logged in
-        if (!Auth::check()) {
-            return false;
-        }
-
-        // Model doesn't require user-specific caching
-        if (!in_array($this->modelName, $this->userSpecificModels)) {
-            return false;
-        }
-
-        // Optional: Skip for admin users (they see all data)
-        if ($this->isAdminUser()) {
-            return false;
-        }
-
-        return true;
+        return Auth::check()
+            && in_array($this->modelName, $this->userSpecificModels)
+            && !$this->isAdminUser();
     }
 
-    /**
-     * Check if current user is an admin
-     * Override this method to customize admin detection
-     */
+    // Check if current user is admin
+    // Admins see all data, so no user-specific caching needed
     protected function isAdminUser(): bool
     {
         $user = Auth::user();
-
-        // Check for super admin role from config
         $superAdminRole = config('tweny-blueprint.authorization.super_admin_role', 'superAdmin');
 
         if (method_exists($user, 'hasRole')) {
             return $user->hasRole($superAdminRole);
         }
 
-        // Fallback: check for is_admin attribute
-        if (isset($user->is_admin)) {
-            return $user->is_admin;
-        }
-
-        return false;
+        return $user->is_admin ?? false;
     }
 
-    /**
-     * Clear all cache for this repository
-     */
+    // Clear all cache for this model
+    // Called automatically when model is created/updated/deleted
     public function clearCache(): void
     {
         if (!config('tweny-blueprint.cache.enabled', true)) {
@@ -113,26 +81,26 @@ trait RepositoryCacheTrait
 
         $driver = config('tweny-blueprint.cache.driver', 'redis');
 
+        // Use tags for Redis/Memcached (clears all related keys efficiently)
         if (in_array($driver, ['redis', 'memcached'])) {
-            // Clear tag-based cache
             Cache::tags([$this->cacheKeyPrefix])->flush();
 
-            // If user-specific, also clear user's cache
+            // Also clear user-specific cache if applicable
             if ($this->shouldUseUserSpecificCache()) {
                 $userTag = 'user_' . Auth::id();
                 Cache::tags([$userTag, $this->cacheKeyPrefix])->flush();
             }
         } else {
-            // Clear specific keys for non-tag-supporting drivers
+            // Fallback for drivers that don't support tags (file, database)
             $this->clearCacheKeys();
         }
     }
 
-    /**
-     * Clear specific cache keys (for non-tag-supporting drivers)
-     */
+    // Clear specific cache keys one by one
+    // Used when cache driver doesn't support tags
     protected function clearCacheKeys(): void
     {
+        // List of all cache keys used by BaseRepository
         $keys = [
             'all',
             'all_with_relations',
@@ -143,16 +111,13 @@ trait RepositoryCacheTrait
             'trashed',
             'pluck_active'
         ];
+
         foreach ($keys as $key) {
-            $cacheKey = $this->generateCacheKey($key);
-            Cache::forget($cacheKey);
+            Cache::forget($this->generateCacheKey($key));
         }
     }
 
-    /**
-     * Clear cache for a specific user
-     * Useful when user data changes
-     */
+    // Clear cache for specific user (useful when user data changes)
     public function clearUserCache(int $userId): void
     {
         if (!config('tweny-blueprint.cache.enabled', true)) {
@@ -167,10 +132,7 @@ trait RepositoryCacheTrait
         }
     }
 
-    /**
-     * Clear cache for all users
-     * Useful for global data changes
-     */
+    // Clear cache for all users (useful for global data changes)
     public function clearAllUsersCache(): void
     {
         if (!config('tweny-blueprint.cache.enabled', true)) {

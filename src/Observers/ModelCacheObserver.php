@@ -7,94 +7,92 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
-/**
- * Observer to automatically clear cache when models are modified
- */
 class ModelCacheObserver
 {
-    /**
-     * Handle the Model "created" event.
-     *
-     * @param \Illuminate\Database\Eloquent\Model $model
-     * @return void
-     */
+    // Automatically called when model is created
     public function created(Model $model): void
     {
         $this->clearModelCache($model);
     }
 
-    /**
-     * Handle the Model "updated" event.
-     *
-     * @param \Illuminate\Database\Eloquent\Model $model
-     * @return void
-     */
+    // Automatically called when model is updated
     public function updated(Model $model): void
     {
         $this->clearModelCache($model);
     }
 
-    /**
-     * Handle the Model "deleted" event.
-     *
-     * @param \Illuminate\Database\Eloquent\Model $model
-     * @return void
-     */
+    // Automatically called when model is soft deleted
     public function deleted(Model $model): void
     {
         $this->clearModelCache($model);
     }
 
-    /**
-     * Handle the Model "restored" event.
-     *
-     * @param \Illuminate\Database\Eloquent\Model $model
-     * @return void
-     */
+    // Automatically called when model is restored from trash
     public function restored(Model $model): void
     {
         $this->clearModelCache($model);
     }
 
-    /**
-     * Handle the Model "force deleted" event.
-     *
-     * @param \Illuminate\Database\Eloquent\Model $model
-     * @return void
-     */
+    // Automatically called when model is permanently deleted
     public function forceDeleted(Model $model): void
     {
         $this->clearModelCache($model);
     }
 
-    /**
-     * Clear cache for the model
-     *
-     * @param \Illuminate\Database\Eloquent\Model $model
-     * @return void
-     */
+    // Clear all cache related to this model
+    // Example: Role model clears all role:* cache keys
     protected function clearModelCache(Model $model): void
     {
+        // Get model name and convert to snake_case for cache key
+        // Example: Role -> role, UserProfile -> user_profile
         $modelName = class_basename($model);
         $cacheKeyPrefix = Str::snake($modelName);
+        $driver = config('tweny-blueprint.cache.driver', 'redis');
 
-        // Get common cache keys from config or use defaults
-        $keys = config('tweny-blueprint.cache_keys',['all','with_relationship', 'active_with_relationship', 'inactive_with_relationship',
-            'trashed', 'paginated','active','pluck_active']);
+        // Use tags for Redis/Memcached (clears all related keys at once)
+        if (in_array($driver, ['redis', 'memcached'])) {
+            try {
+                Cache::tags([$cacheKeyPrefix])->flush();
+                Log::info("Cache cleared for {$modelName} using tags");
+            } catch (\Exception $e) {
+                // Fallback if tags fail
+                Log::warning("Failed to clear cache tags for {$modelName}: " . $e->getMessage());
+                $this->clearCacheKeys($cacheKeyPrefix, $modelName);
+            }
+        } else {
+            // For drivers that don't support tags (file, database)
+            $this->clearCacheKeys($cacheKeyPrefix, $modelName);
+        }
+    }
+
+    // Clear specific cache keys one by one
+    // Format: role:all, role:all_with_relations, etc.
+    protected function clearCacheKeys(string $cacheKeyPrefix, string $modelName): void
+    {
+        // All cache keys used by BaseRepository
+        $keys = [
+            'all',
+            'all_with_relations',
+            'active',
+            'active_with_relations',
+            'inactive',
+            'inactive_with_relations',
+            'trashed',
+            'pluck_active'
+        ];
 
         foreach ($keys as $key) {
-            // Clear global cache
-            $cacheKey = $cacheKeyPrefix . '_' . $key;
+            // Generate cache key: role:all_with_relations
+            $cacheKey = $cacheKeyPrefix . ':' . $key;
             Cache::forget($cacheKey);
 
-            // Clear user-specific cache if user is logged in as employee
-            if (auth()->check() && auth()->user()->hasRole(['employee'])) {
-                $userKey = auth()->user()->username . '_' . $cacheKey;
+            // Also clear user-specific cache if user is logged in
+            // Format: user_1:role:all_with_relations
+            if (auth()->check() && method_exists(auth()->user(), 'hasRole') && auth()->user()->hasRole(['employee'])) {
+                $userKey = 'user_' . auth()->id() . ':' . $cacheKey;
                 Cache::forget($userKey);
-                Log::info("Cache cleared for {$modelName}: {$userKey}");
             }
 
-            // Log cache clearing for debugging
             Log::info("Cache cleared for {$modelName}: {$cacheKey}");
         }
     }
