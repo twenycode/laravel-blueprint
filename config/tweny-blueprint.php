@@ -20,6 +20,10 @@ return [
 
         // Cache driver (must support tags: redis, memcached)
         'driver' => env('CACHE_DRIVER', 'redis'),
+
+        // Cache key prefix (set to empty string to remove laravel-cache- prefix)
+        // Or set a custom prefix like 'bp:' for 'bp:role:all_with_relations'
+        'prefix' => env('BLUEPRINT_CACHE_PREFIX', ''),
     ],
 
     /*
@@ -80,10 +84,10 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | HasIds
+    | HashIds
     |--------------------------------------------------------------------------
     |
-    | Default pagination settings for repositories.
+    | Configuration for ID obfuscation using HashIds.
     |
     */
     'hashids' => [

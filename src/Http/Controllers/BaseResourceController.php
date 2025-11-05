@@ -56,7 +56,7 @@ abstract class BaseResourceController extends Controller
     /**
      * Store newly created resource
      */
-    public function store($request)
+    public function processStore($request)
     {
         $this->authorizeAction('create');
 
@@ -98,7 +98,7 @@ abstract class BaseResourceController extends Controller
     /**
      * Update specified resource
      */
-    public function update($request, $id)
+    public function processUpdate($request, $id)
     {
         $this->authorizeAction('update');
 
