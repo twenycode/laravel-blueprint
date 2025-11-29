@@ -1,372 +1,163 @@
 <?php
 
-use Carbon\Carbon;
-use Illuminate\Support\Str;
-
 /*
 |--------------------------------------------------------------------------
-| Date Helper Class
+| Global Helper Functions - Date & Time
 |--------------------------------------------------------------------------
 */
-// Convert a date and time string from one format to another
-function dateTimeConversion($date1, $date2 = 'd M Y H:i:s')
-{
-    if (!is_null($date1)) {
-        return Carbon::parse($date1)->format($date2);
-    }
-    return null;
-}
 
-// Calculate number of days between two dates
-function numberOfDays($date1, $date2): float
-{
-    $date1 = strtotime($date1);
-    $date2 = strtotime($date2);
-    $difference = $date2 - $date1;
-    return round($difference / (60 * 60 * 24));
-}
-
-// Calculate the age of a record in days from a given date to today
-function calculateAge($date)
-{
-    if ($date != null) {
-        $dob = new DateTime($date);
-        $today = new DateTime(date('Y-m-d'));
-        $interval = $today->diff($dob);
-        return $interval->days;
-    }
-    return null;
-}
-
-// Get difference between two dates in human-readable format
-function dateDifference($start_date, $end_date): string
-{
-    $fromDate = new DateTime($start_date);
-    $curDate = new DateTime($end_date);
-    $months = $curDate->diff($fromDate);
-
-    if ($months->format('%y') > 0) {
-        return $months->format('%y years %m months');
-    }
-
-    return $months->format('%m months');
-}
-
-// Calculate number of days remaining from now to a future date
-function calculateRemainingDays($date): float
-{
-    $now = Carbon::now();
-    return max($now->diffInDays($date), 0);
-}
+use TwenyCode\LaravelBlueprint\Helpers\DateHelper;
+use TwenyCode\LaravelBlueprint\Helpers\NumberHelper;
+use TwenyCode\LaravelBlueprint\Helpers\TextHelper;
 
 // Format date range in a readable format
-function formatDateDuration($startDate, $endDate)
+function formatDateDuration(string $startDate, string $endDate): string
 {
-    $start = Carbon::parse($startDate);
-    $end = Carbon::parse($endDate);
-
-    // Same month and year
-    if ($start->month == $end->month && $start->year == $end->year) {
-        return $start->format('F d') . '-' . $end->format('d') . ', ' . $start->format(' Y');
-    }
-
-    // Different months but same year
-    if ($start->year == $end->year) {
-        return $start->format('d M') . ' - ' . $end->format('d M, Y');
-    }
-
-    // Different years
-    return $start->format('d M Y') . ' - ' . $end->format('d M Y');
+    return DateHelper::formatDateDuration($startDate, $endDate);
 }
 
 // Format time as a human-readable "time ago" string
-function formatTimeAgo($timestamp)
+function formatTimeAgo(string $timestamp): string
 {
-    $time_ago = strtotime($timestamp);
-    $current_time = time();
-    $timeDifference = $current_time - $time_ago;
+    return DateHelper::formatTimeAgo($timestamp);
+}
 
-    $intervals = [
-        31553280 => ['year', 'years'],
-        2629440  => ['month', 'months'],
-        604800   => ['week', 'weeks'],
-        86400    => ['day', 'days'],
-        3600     => ['hour', 'hours'],
-        60       => ['minute', 'minutes'],
-        1        => ['second', 'seconds']
-    ];
+// Convert a date and time string from one format to another
+function dateTimeConversion($date, string $format = 'd M Y H:i:s')
+{
+    return DateHelper::dateTimeConversion($date, $format);
+}
 
-    foreach ($intervals as $seconds => list($singular, $plural)) {
-        $count = floor($timeDifference / $seconds);
-        if ($count > 0) {
-            return $count === 1 ? "1 $singular ago" : "$count $plural ago";
-        }
-    }
+// Calculate number of days between two dates
+function numberOfDays(string $date1, string $date2): float
+{
+    return DateHelper::numberOfDays($date1, $date2);
+}
 
-    return "Just now";
+// Calculate the age of a record in days
+function calculateAge($date)
+{
+    return DateHelper::calculateAge($date);
+}
+
+// Calculate number of days remaining from now to a date
+function calculateRemainingDays($date): float
+{
+    return DateHelper::calculateRemainingDays($date);
+}
+
+// Get difference between two dates in human-readable format
+function dateDifference(string $startDate, string $endDate): string
+{
+    return DateHelper::dateDifference($startDate, $endDate);
 }
 
 /*
 |--------------------------------------------------------------------------
-| Number Helper Class
+| Global Helper Functions - Numbers & Currency
 |--------------------------------------------------------------------------
 */
-// Convert file size in bytes to human-readable format
+
+// Convert bytes to human-readable file size
 function formatFileSize(float $bytes, int $decimals = 2): string
 {
-    $units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-    $factor = floor((strlen((string) $bytes) - 1) / 3);
-
-    if ($factor > count($units) - 1) {
-        $factor = count($units) - 1;
-    }
-
-    return sprintf("%.{$decimals}f %s", $bytes / pow(1024, $factor), $units[$factor]);
+    return NumberHelper::formatFileSize($bytes, $decimals);
 }
 
-// Format number with decimal places and thousands separator
-function formatCurrencyDecimal($number, $int = 2): string
+// Format amount with currency symbol
+function formatMoney(float $amount, ?object $currency = null): string
 {
-    return number_format($number, $int, '.', ',');
+    return NumberHelper::formatMoney($amount, $currency);
 }
 
-// Format number with thousands separator, no decimal places
-function formatCurrency($number): string
+// Format number with thousands separator, no decimals
+function formatCurrency(float $number): string
 {
-    return number_format($number, 0, '.', ',');
+    return NumberHelper::formatCurrency($number);
 }
 
-// Format money amount with currency symbol
-function formatMoney($amount, $currency = null)
+// Format number with thousands separator and decimals
+function formatCurrencyDecimal(float $number, int $decimals = 2): string
 {
-    $symbol = !is_null($currency) ? $currency->symbol : '$';
-    return $symbol . ' ' . number_format($currency,2, '.', ',');
+    return NumberHelper::formatCurrencyDecimal($number, $decimals);
 }
 
 // Calculate percentage of an amount
-function calculatePercentNumber($percent, $amount = null)
+function calculatePercentNumber(float $percent, ?float $amount = null)
 {
-    return $percent / 100 * $amount;
+    return NumberHelper::calculatePercentNumber($percent, $amount);
 }
 
 
 /*
 |--------------------------------------------------------------------------
-| Text Helper Class
+| Global Helper Functions - Text
 |--------------------------------------------------------------------------
 */
-// Remove underscores from a word, replacing with spaces
-function removeUnderscore($word)
+
+
+// Trim text to specified word count
+function trimWords(string $text, int $wordCount, string $ellipsis = '...'): string
 {
-    return str_replace("_", " ", $word);
+    return TextHelper::trimWords($text, $wordCount, $ellipsis);
 }
 
-// Add underscores to a word, replacing spaces and lowercasing
-function addUnderscore($word)
+// Trim HTML text while preserving structure
+function trimHtmlWords(string $html, int $wordCount, string $ellipsis = '...'): string
 {
-    return str_replace(" ", "_", strtolower($word));
+    return TextHelper::trimHtmlWords($html, $wordCount, $ellipsis);
 }
 
-// Remove a specific character and capitalize the word
-function removeCharAndCapitalize($char, $word)
+// Remove underscores from a word
+function removeUnderscore(string $word): string
 {
-    return str_replace($char, " ", ucwords($word));
+    return TextHelper::removeUnderscore($word);
+}
+
+// Add underscores to a word
+function addUnderscore(string $word): string
+{
+    return TextHelper::addUnderscore($word);
+}
+
+// Remove a character and capitalize the word
+function removeCharAndCapitalize(string $char, string $word): string
+{
+    return TextHelper::removeCharAndCapitalize($char, $word);
 }
 
 // Replace a character in a string with space and capitalize
-function replaceString($char, $word)
+function replaceString(string $char, string $word): string
 {
-    return str_replace($char, " ", ucwords($word));
+    return TextHelper::replaceString($char, $word);
 }
 
-// Return singular or plural suffix based on a value
-function plural($value, $singular = '', $plural = 's')
+// Return singular or plural suffix based on value
+function textPlural(int $value, string $singular = '', string $plural = 's'): string
 {
-    if ($value === 1) {
-        return $singular;
-    }
-    return $plural;
+    return TextHelper::plural($value, $singular, $plural);
 }
 
 // Convert string to snake_case
-function snake($string)
+function textSnake(string $string): string
 {
-    return Str::snake($string);
+    return TextHelper::snake($string);
 }
 
 // Convert string to Headline Case
-function headline($string)
+function textHeadline(string $string): string
 {
-    return Str::headline($string);
-}
-
-// Trim text to a specific number of words
-function trimWords($text, $wordCount, $ellipsis = '...')
-{
-    $text = trim($text);
-
-    if (empty($text) || $wordCount <= 0) {
-        return '';
-    }
-
-    $words = preg_split('/\s+/', $text);
-
-    if (count($words) <= $wordCount) {
-        return $text;
-    }
-
-    $trimmedWords = array_slice($words, 0, $wordCount);
-    $trimmedText = implode(' ', $trimmedWords);
-
-    return $trimmedText . $ellipsis;
-}
-
-// Trim HTML text to a specific number of words while preserving HTML structure
-function trimHtmlWords($html, $wordCount, $ellipsis = '...')
-{
-    $stripped = strip_tags($html);
-    $words = preg_split('/\s+/', trim($stripped));
-
-    if (count($words) <= $wordCount) {
-        return $html;
-    }
-
-    $limitedWords = array_slice($words, 0, $wordCount);
-    $limitedText = implode(' ', $limitedWords);
-
-    $position = 0;
-    $tags = array();
-
-    for ($i = 0; $i < $wordCount; $i++) {
-        $word = $words[$i];
-        $wordPos = strpos($stripped, $word, $position);
-        if ($wordPos === false) break;
-        $position = $wordPos + strlen($word);
-    }
-
-    $htmlPart = substr($html, 0, strpos($html, $words[$wordCount - 1]) + strlen($words[$wordCount - 1]));
-
-    preg_match_all('/<([a-z]+)[^>]*>/i', $htmlPart, $openedTags);
-    preg_match_all('/<\/([a-z]+)>/i', $htmlPart, $closedTags);
-
-    $openedTagsCount = array();
-    foreach ($openedTags[1] as $tag) {
-        $tag = strtolower($tag);
-        if (isset($openedTagsCount[$tag])) {
-            $openedTagsCount[$tag]++;
-        } else {
-            $openedTagsCount[$tag] = 1;
-        }
-    }
-
-    foreach ($closedTags[1] as $tag) {
-        $tag = strtolower($tag);
-        if (isset($openedTagsCount[$tag])) {
-            $openedTagsCount[$tag]--;
-        }
-    }
-
-    $closingTags = '';
-    foreach ($openedTagsCount as $tag => $count) {
-        for ($i = 0; $i < $count; $i++) {
-            $closingTags .= '</' . $tag . '>';
-        }
-    }
-
-    return $htmlPart . $ellipsis . $closingTags;
+    return TextHelper::headline($string);
 }
 
 // Convert a word to its plural form
-function pluralize($singular)
+function pluralize(string $singular): string
 {
-    $irregulars = [
-        'person' => 'people',
-        'man' => 'men',
-        'child' => 'children',
-        'foot' => 'feet',
-        'tooth' => 'teeth',
-        'goose' => 'geese',
-        'mouse' => 'mice',
-        'ox' => 'oxen',
-        'leaf' => 'leaves',
-        'life' => 'lives',
-        'wife' => 'wives',
-        'knife' => 'knives',
-        'datum' => 'data',
-        'analysis' => 'analyses',
-        'criterion' => 'criteria',
-        'medium' => 'media',
-        'phenomenon' => 'phenomena',
-        'crisis' => 'crises',
-        'index' => 'indices',
-        'matrix' => 'matrices',
-        'vertex' => 'vertices',
-    ];
-
-    $uncountable = [
-        'equipment', 'information', 'rice', 'money', 'species', 'series',
-        'fish', 'sheep', 'deer', 'aircraft', 'feedback', 'metadata',
-        'traffic', 'furniture', 'software', 'hardware', 'history'
-    ];
-
-    if (array_key_exists($singular, $irregulars)) {
-        return $irregulars[$singular];
-    }
-
-    if (in_array($singular, $uncountable)) {
-        return $singular;
-    }
-
-    if (preg_match('/[^aeiou]y$/i', $singular)) {
-        return preg_replace('/y$/i', 'ies', $singular);
-    }
-
-    if (preg_match('/(s|ss|sh|ch|x|z)$/i', $singular)) {
-        return $singular . 'es';
-    }
-
-    if (preg_match('/[^f]f$/i', $singular)) {
-        return preg_replace('/f$/i', 'ves', $singular);
-    }
-
-    if (preg_match('/fe$/i', $singular)) {
-        return preg_replace('/fe$/i', 'ves', $singular);
-    }
-
-    if (preg_match('/[^aeiou]o$/i', $singular)) {
-        return $singular . 'es';
-    }
-
-    return $singular . 's';
+    return TextHelper::pluralize($singular);
 }
 
 // Pluralize a camelCase or snake_case variable name
-function pluralizeVariableName($variableName)
+function pluralizeVariableName(string $variableName): string
 {
-    if (strpos($variableName, '_') === false && preg_match('/[A-Z]/', $variableName)) {
-        preg_match('/([A-Z][a-z0-9]*)$/', $variableName, $matches);
-
-        if (!empty($matches[1])) {
-            $lastWord = $matches[1];
-            $pluralLastWord = self::pluralize(strtolower($lastWord));
-
-            if (ctype_upper($lastWord[0])) {
-                $pluralLastWord = ucfirst($pluralLastWord);
-            }
-
-            return preg_replace('/' . $lastWord . '$/', $pluralLastWord, $variableName);
-        }
-
-        $lastWord = lcfirst($variableName);
-        return self::pluralize($lastWord);
-    }
-
-    if (strpos($variableName, '_') !== false) {
-        $parts = explode('_', $variableName);
-        $lastPart = array_pop($parts);
-        $parts[] = self::pluralize($lastPart);
-        return implode('_', $parts);
-    }
-
-    return self::pluralize($variableName);
+    return TextHelper::pluralizeVariableName($variableName);
 }
