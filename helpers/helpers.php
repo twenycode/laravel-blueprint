@@ -1,7 +1,6 @@
 <?php
 
 use Carbon\Carbon;
-use DateTime;
 use Illuminate\Support\Str;
 
 /*
@@ -141,7 +140,7 @@ function formatCurrency($number): string
 function formatMoney($amount, $currency = null)
 {
     $symbol = !is_null($currency) ? $currency->symbol : '$';
-    return $symbol . ' ' . self::formatCurrencyDecimal($amount);
+    return $symbol . ' ' . number_format($currency,2, '.', ',');
 }
 
 // Calculate percentage of an amount
